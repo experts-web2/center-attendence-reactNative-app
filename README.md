@@ -1,1 +1,2 @@
-# center-attendence-reactNative-app
+# Technovez-attandance
+Attendence System
