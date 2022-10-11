@@ -5,12 +5,13 @@ import {
   SafeAreaView,
   TextInput,
   TouchableOpacity,
+  Dimensions,
   Button,
 } from 'react-native';
-import {StyleSheet} from 'react-native';
-import React, {useState, useEffect} from 'react';
+import { StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
 import SelectDropdown from 'react-native-select-dropdown';
-import {Dropdown} from 'react-native-element-dropdown';
+import { Dropdown } from 'react-native-element-dropdown';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {
   getCities,
@@ -33,14 +34,14 @@ const SignUpScreen = () => {
   const [isFocus, setIsFocus] = useState(false);
 
   const submitLogin = () => {
-    const data={
-      name:name,
-      email:email,
-      password:password,
-      phoneNumber:phoneNumber,
-      city:city,
-      center:center,
-      role:role
+    const data = {
+      name: name,
+      email: email,
+      password: password,
+      phoneNumber: phoneNumber,
+      city: city,
+      center: center,
+      role: role
     }
     console.log('called');
     createUser(data)
@@ -197,12 +198,7 @@ const SignUpScreen = () => {
           </View>
 
           <TouchableOpacity style={styles.loginButton}>
-            <Button
-              color="black"
-              style={styles.loginButton}
-              title="Sign Up"
-              onPress={submitLogin}
-            />
+            <Text onPress={submitLogin} style={styles.loginButton1}>Submit</Text>
           </TouchableOpacity>
         </SafeAreaView>
       </ScrollView>
@@ -215,10 +211,26 @@ export default SignUpScreen;
 const styles = StyleSheet.create({
   loginMainContainer: {
     flex: 1,
-    backgroundColor: 'white',
-    paddingTop: 30,
+    backgroundColor: '#F8FAF8',
+    paddingTop: 1,
     paddingBottom: 30,
     borderRadius: 10,
+    width: '90%',
+    marginTop: 2,
+    marginBottom: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: -2, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 0,
+    justifyContent: 'space-between',
+    color: '#000',
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    boxShadow: '10 10 10 rgba(10, 10, 0, 0.1)',
+    borderRadius: 20,
+    borderWidth: 1,
+    marginHorizontal: 15,
+    backgroundColor: '#fff',
   },
   signInTitle: {
     fontSize: 30,
@@ -231,35 +243,41 @@ const styles = StyleSheet.create({
     paddingBottom: 4,
   },
   mainContainer: {
-    width: '90%',
-    marginTop: 100,
+    width: Dimensions.get('window').width,
+    marginTop: 60,
     marginLeft: 'auto',
     marginRight: 'auto',
   },
   signInInputWrapper: {
     marginLeft: 'auto',
     marginRight: 'auto',
-    width: '90%',
-    marginTop: 10,
-    marginBottom: 10,
+    width: '95%',
+    marginTop: 2,
+    marginBottom: 2
   },
   textInputLabel: {
-    fontSize: 20,
-    marginTop: 5,
-    color: 'black',
+    fontSize: 18,
+    marginTop: 3,
+    color: "#334FE5",
     marginBottom: 3,
   },
   textInputText: {
-    fontSize: 20,
+    fontSize: 17,
     borderBottomWidth: 1,
     borderBottomColor: 'black',
-    // borderWidth:2,
-    width: '90%',
   },
   loginButton: {
-    margin: 20,
+    marginTop: 20,
     paddingTop: 10,
-    fontSize: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.2)',
+    borderRadius: 15,
+    backgroundColor: "#334FE5",
+    height: 50,
+    marginVertical: 10,
+    marginLeft: 2,
+    marginRight: 2,
+    paddingHorizontal: 10,
   },
   loginBtn: {
     fontSize: 30,
@@ -268,11 +286,12 @@ const styles = StyleSheet.create({
   },
   dropdown: {
     height: 50,
-    borderColor: 'gray',
-    borderWidth: 0.5,
+    borderBottomColor: 'black',
+    borderBottomWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 8,
     color: 'black',
+    marginTop: 10,
   },
   icon: {
     marginRight: 5,
@@ -305,15 +324,15 @@ const styles = StyleSheet.create({
   },
   container: {
     backgroundColor: 'white',
-    padding: 16,
+    paddingHorizontal: 10,
   },
-  dropdown: {
+  loginButton1: {
+    fontSize: 20,
+    color: 'white',
+    textAlign: 'center',
+    textTransform: 'capitalize',
+    fontFamily: 'Roboto',
+    fontWeight: 'bold',
     height: 50,
-    borderColor: 'black',
-
-    color: 'black',
-    borderWidth: 0.5,
-    borderRadius: 8,
-    paddingHorizontal: 8,
   },
 });

@@ -14,7 +14,16 @@ import { getAttendance } from '../../services/attendaceService'
 import Filteration from '../attendance/Filteration';
 import { Dimensions } from 'react-native';
 import {  useIsFocused } from '@react-navigation/native';
+import Animated, {  Layout, useAnimatedScrollHandler, useSharedValue} from 'react-native-reanimated';
 const Home = () => {
+  const scrollOffset = useSharedValue(0);
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      console.log("scrollOffset",event)
+      scrollOffset.value = event.contentOffset.y;
+    },
+  });
+
 const isFocused = useIsFocused();
   const [attendances, setAttendances] = useState([]);
   const [showFilter, setShowFilter] = useState(false);
@@ -25,28 +34,13 @@ const isFocused = useIsFocused();
   const getAllAttendencesData = async () => {
     await getAttendance(attendanceFilters)
       .then(response => {
-        console.log('response', response);
         setAttendances(response.data);
       })
       .catch(err => console.log(err));
   };
   useEffect(() => {
-    if(isFocused){
-      console.log('isFocused',isFocused)
       getAllAttendencesData();
-    }
-    console.log('useEffect Called');
-    getAllAttendencesData();
-  }, []);
-
-  React.useCallback(() => {
-    console.log('useCallback Called');
-    getAllAttendencesData();
-  }, []);
-//  React.useCallbackuseFocusEffect(()=>{
-//   getAllAttendencesData();
-//  },)
-
+  }, [isFocused]);
   return (
     <View style={styles.homeWrapper}>
       <View style={styles.headerBackground}>
@@ -74,8 +68,13 @@ const isFocused = useIsFocused();
         <FlatList
           data={attendances}
           keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => (
+          renderItem={({ item },index) => (
             <TouchableOpacity>
+              <Animated.ScrollView 
+              onScroll={scrollHandler}
+              style={styles.animationattendanceCard}  key={index}
+                 layout={Layout.springify()}
+                 >
               <View style={styles.userContainer}>
                 <View style={styles.userDetail1}>
                   <Text style={styles.userName}>City:</Text>
@@ -115,7 +114,9 @@ const isFocused = useIsFocused();
                     {moment(item?.date).format('MMM Do YY')}
                   </Text>
                 </View>
+
               </View>
+              </Animated.ScrollView>
             </TouchableOpacity>
           )}
         />
@@ -267,4 +268,20 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingHorizontal: 15,
   },
+  animationattendanceCard:{
+    transform: [{translateY: 0.5}],
+    opacity: 0.5,
+    transform: [{translateY: 0.5}],
+ 
+    // transform the card to the left and right when scrolling it
+    transform: [{translateX: 0.5}],
+
+
+
+   
+
+   
+
+  }
+
 });

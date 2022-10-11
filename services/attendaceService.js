@@ -35,11 +35,11 @@ export const getAttendance = ({ city, center }) => {
   };
 
 
-  export const getUserFilterationData = (city, center, selectCityManager, selectCenterManager) => {
+  export const getUserFilterationData = (city, center, cityManager, selectCenterManager) => {
     const url = "/filter-attendance";
     return new Promise((resolve, reject) => {
       axiosInstance
-        .post(url,{city, center, selectCityManager, selectCenterManager})
+        .post(url,{city, center, cityManager, selectCenterManager})
         .then((response) => resolve(response))
         .catch((err) => reject(err));
     });

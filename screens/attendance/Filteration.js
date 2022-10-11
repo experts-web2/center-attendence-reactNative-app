@@ -10,7 +10,7 @@ const Filteration = (props) => {
     const [centers, setCenters] = useState([]);
     const [center, setCenter] = useState();
     const [isFocus, setIsFocus] = useState(false);
-    const [selectCityManager, setSelectCityManager] = useState([]);
+    const [cityManager, setSelectCityManager] = useState([]);
     const [selectCenterManager, setSelectCenterManager] = useState([]);
     const [centerManagers, setCenterManagers] = useState([]);
     const [cityManagers, setCityManagers] = useState([]);
@@ -33,8 +33,14 @@ const Filteration = (props) => {
         setSelectCityManager(e);
     }
     const filterationFun = async () => {
-        await getUserFilterationData(city, center, selectCityManager, selectCenterManager).then((response) => {
-            props.setAttendances(response.data.result);
+        await getUserFilterationData(city._id, center._id, cityManager, selectCenterManager).then((response) => {
+            console.log("dsdsddssdssddddd",JSON.stringify(response.data[0].record))
+            if(response.data.result){
+                props.setAttendances(response.data.result);
+            }
+            else{
+                props.setAttendances(response.data[0].record);
+            }
             props.setShowFilter(false);
         })
     }
@@ -103,7 +109,7 @@ const Filteration = (props) => {
                         labelField="label"
                         valueField="value"
                         placeholder={!isFocus ? 'choose City Manager' : '...'}
-                        value={selectCityManager}
+                        value={cityManager}
                         onFocus={() => setIsFocus(true)}
                         onBlur={() => setIsFocus(false)}
                         onChange={changeCityManager}
