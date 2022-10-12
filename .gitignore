@@ -59,4 +59,8 @@ buck-out/
 # Ruby / CocoaPods
 /ios/Pods/
 /vendor/bundle/
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6578deb4b42146cc82498dc070782e6d3f279b12
 /package-lock.json
