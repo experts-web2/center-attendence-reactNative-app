@@ -34,11 +34,10 @@ const Filteration = (props) => {
     }
     const filterationFun = async () => {
         await getUserFilterationData(city._id, center._id, cityManager, selectCenterManager).then((response) => {
-            console.log("dsdsddssdssddddd",JSON.stringify(response.data[0].record))
-            if(response.data.result){
+            if (response.data.result) {
                 props.setAttendances(response.data.result);
             }
-            else{
+            else {
                 props.setAttendances(response.data[0].record);
             }
             props.setShowFilter(false);
@@ -54,7 +53,7 @@ const Filteration = (props) => {
     return (
         <View style={styles.filterWrapper}>
             <View style={styles.filter_main_wrapper}>
-            <TouchableOpacity style={styles.crossIcon} onPress={() => props.setShowFilter(!props.showFilter)}>
+                <TouchableOpacity style={styles.crossIcon} onPress={() => props.setShowFilter(!props.showFilter)}>
                     <Image source={cross} style={styles.crossIconImage} />
                 </TouchableOpacity>
                 <View style={styles.container}>
@@ -134,10 +133,9 @@ const Filteration = (props) => {
                     />
                 </View>
                 <View style={{ paddingTop: 20 }}>
-                <TouchableOpacity style={styles.loginButton}>
-              <Text onPress={filterationFun} style={styles.loginButton1}>Filter</Text>
-            </TouchableOpacity>
-                    
+                    <TouchableOpacity style={styles.loginButton}>
+                        <Text onPress={filterationFun} style={styles.loginButton1}>Filter</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
         </View>
@@ -165,7 +163,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     filter_main_wrapper: {
-        width:'90%',
+        width: '90%',
         display: 'flex',
         paddingVertical: 10,
         backgroundColor: '#f5f5f5',
@@ -198,7 +196,7 @@ const styles = StyleSheet.create({
         height: 50,
         borderBottomColor: 'black',
         borderBottomWidth: 1,
-        borderRadius: 8,  
+        borderRadius: 8,
         color: 'black',
     },
     container: {
@@ -222,8 +220,8 @@ const styles = StyleSheet.create({
         marginLeft: 15,
         marginRight: 15,
         paddingHorizontal: 10,
-        width:'90%'
-      },
+        width: '90%'
+    },
     loginButton1: {
         fontSize: 20,
         color: 'white',
@@ -232,7 +230,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Roboto',
         fontWeight: 'bold',
         height: 50,
-      },
+    },
     filterBtnWrapper: {
         backgroundColor: 'rgb(0, 0, 0)',
         borderRadius: 10,
