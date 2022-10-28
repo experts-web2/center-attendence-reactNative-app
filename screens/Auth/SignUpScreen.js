@@ -6,13 +6,15 @@ import {
   TextInput,
   TouchableOpacity,
   Dimensions,
+  ToastAndroid,
   Button,
 } from 'react-native';
-import { StyleSheet } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import {StyleSheet} from 'react-native';
+import React, {useState, useEffect} from 'react';
 import SelectDropdown from 'react-native-select-dropdown';
-import { Dropdown } from 'react-native-element-dropdown';
+import {Dropdown} from 'react-native-element-dropdown';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import {useNavigation} from '@react-navigation/native';
 import {
   getCities,
   getUserRoles,
@@ -21,6 +23,7 @@ import {
 } from '../../services/AuthService';
 
 const SignUpScreen = () => {
+  const navigation = useNavigation();
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -41,11 +44,22 @@ const SignUpScreen = () => {
       phoneNumber: phoneNumber,
       city: city,
       center: center,
-      role: role
-    }
+      role: role,
+    };
     console.log('called');
     createUser(data)
-      .then(res => console.log('res', res))
+      .then(res => {
+        if (res.data === true) {
+          ToastAndroid.showWithGravity(
+            JSON.stringify('Login Successfully'),
+            ToastAndroid.SHORT,
+            ToastAndroid.CENTER,
+          );
+          setTimeout(() => {
+            navigation.navigate('Login');
+          }, 1000);
+        }
+      })
       .catch(err => console.log(err));
   };
 
@@ -198,7 +212,9 @@ const SignUpScreen = () => {
           </View>
 
           <TouchableOpacity style={styles.loginButton}>
-            <Text onPress={submitLogin} style={styles.loginButton1}>Submit</Text>
+            <Text onPress={submitLogin} style={styles.loginButton1}>
+              Submit
+            </Text>
           </TouchableOpacity>
         </SafeAreaView>
       </ScrollView>
@@ -218,8 +234,8 @@ const styles = StyleSheet.create({
     width: '90%',
     marginTop: 2,
     marginBottom: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: -2, height: 4 },
+    shadowColor: '#000',
+    shadowOffset: {width: -2, height: 4},
     shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 0,
@@ -253,12 +269,12 @@ const styles = StyleSheet.create({
     marginRight: 'auto',
     width: '95%',
     marginTop: 2,
-    marginBottom: 2
+    marginBottom: 2,
   },
   textInputLabel: {
     fontSize: 18,
     marginTop: 3,
-    color: "#334FE5",
+    color: '#334FE5',
     marginBottom: 3,
   },
   textInputText: {
@@ -272,7 +288,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(0,0,0,0.2)',
     borderRadius: 15,
-    backgroundColor: "#334FE5",
+    backgroundColor: '#334FE5',
     height: 50,
     marginVertical: 10,
     marginLeft: 2,

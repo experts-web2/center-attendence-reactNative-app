@@ -1,9 +1,8 @@
 import {axiosInstance} from './axios';
 
-export const getAttendance = ({ city, center }) => {
+export const getAttendance = ({userRole}) => {
     let url = "/attendance";
-    if (city) url = url + "?city=" + city;
-    if (center) url = url + "&center=" + center;
+    if (userRole) url = url + "?center=" + userRole;
     return new Promise((resolve, reject) => {
       axiosInstance
         .get(url)
@@ -24,6 +23,7 @@ export const getAttendance = ({ city, center }) => {
   };
 
   export const getUserRolesByCityCenter = (centerId, cityId) => {
+    console.log("called123", centerId, cityId);
     const url = "/user/getRole";
   
     return new Promise((resolve, reject) => {
@@ -40,6 +40,18 @@ export const getAttendance = ({ city, center }) => {
     return new Promise((resolve, reject) => {
       axiosInstance
         .post(url,{city, center, cityManager, selectCenterManager})
+        .then((response) => resolve(response))
+        .catch((err) => reject(err));
+    });
+  };
+
+  export const geAttendenciesRecord = (cityManager) => {
+    console.log("cityManager",cityManager);
+    const url = "attendance/filter";
+  
+    return new Promise((resolve, reject) => {
+      axiosInstance
+        .post(url, {cityManager })
         .then((response) => resolve(response))
         .catch((err) => reject(err));
     });

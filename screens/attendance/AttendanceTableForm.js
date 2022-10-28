@@ -1,4 +1,7 @@
-import { createAttendance, getUserRolesByCityCenter } from '../../services/attendaceService'
+import {
+  createAttendance,
+  getUserRolesByCityCenter,
+} from '../../services/attendaceService';
 import {
   View,
   Text,
@@ -6,21 +9,17 @@ import {
   SafeAreaView,
   TextInput,
   TouchableOpacity,
-  Button,
   Dimensions,
-  Keyboard,
-  TouchableWithoutFeedback
 } from 'react-native';
-import { StyleSheet } from 'react-native';
-import React, { useState, useEffect } from 'react';
-import { Dropdown, MultiSelect } from 'react-native-element-dropdown';
-import {
-  getCities,
-  getCentersByCity,
-} from '../../services/AuthService';
+import {StyleSheet} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {Dropdown, MultiSelect} from 'react-native-element-dropdown';
+import {getCities, getCentersByCity} from '../../services/AuthService';
+import AsyncStorageManager from '../../Managers/AsyncStorageManager';
+import { useIsFocused } from "@react-navigation/native";
 
-
-const AttendanceTableForm = ({ navigation }) => {
+const AttendanceTableForm = ({navigation}) => {
+  const isFocused = useIsFocused();
   const [member, setmember] = useState('');
   const [nonMember, setnonMember] = useState('');
   const [city, setCity] = useState('choose');
@@ -29,10 +28,12 @@ const AttendanceTableForm = ({ navigation }) => {
   const [center, setCenter] = useState();
   const [employee, setEmployee] = useState('');
   const [centerManagers, setCenterManagers] = useState([]);
-  const [cityManagers, setCityManagers] = useState([]);
   const [isFocus, setIsFocus] = useState(false);
+  const [cityManagers, setCityManagers] = useState([]);
   const [selectCityManager, setSelectCityManager] = useState([]);
   const [selectCenterManager, setSelectCenterManager] = useState([]);
+  const [userRole, setUserRole] = useState('');
+  const [userId, setUserId] = useState('');
 
   const handleCity = async e => {
     setCity(e);
@@ -41,53 +42,109 @@ const AttendanceTableForm = ({ navigation }) => {
       .catch(err => console.log(err));
   };
 
-  const selectCenter = async (e) => {
-    setCenter(e);
-    await getUserRolesByCityCenter(e._id, e.city._id)
-      .then((response) => {
-        console.log('response', JSON.stringify(response.data.cityManagers));
-        setCenterManagers(response.data.centerManagers.map((item) => { return { ...centerManagers, label: item, value: item } }))
-        setCityManagers(response.data.cityManagers.map((item) => { return { ...cityManagers, label: item, value: item } }))
+  const handleCenterAndCityManagers = async (centerId, cityId) => {
+    console.log("handleCenterAndCityManagers",centerId, cityId)
+    await getUserRolesByCityCenter(centerId, cityId)
+      .then(response => {
+        console.log('response api call', JSON.stringify(response.data.cityManagers));
+        setCenterManagers(
+          response.data.centerManagers.map(item => {
+            return {...centerManagers, label: item, value: item};
+          }),
+        );
+        setCityManagers(
+          response.data.cityManagers.map(item => {
+            return {...cityManagers, label: item, value: item};
+          }),
+        );
       })
-      .catch((err) => console.log(err))
+      .catch(err => console.log(err));
   };
 
-  const changeCityManager = (e) => {
+  const selectCenter = async e => {
+    setCenter(e);
+    await getUserRolesByCityCenter(e._id, e.city._id)
+      .then(response => {
+        console.log('response', JSON.stringify(response.data.cityManagers));
+        setCenterManagers(
+          response.data.centerManagers.map(item => {
+            return {...centerManagers, label: item, value: item};
+          }),
+        );
+        setCityManagers(
+          response.data.cityManagers.map(item => {
+            return {...cityManagers, label: item, value: item};
+          }),
+        );
+      })
+      .catch(err => console.log(err));
+  };
+
+  const changeCityManager = e => {
     setSelectCityManager(e);
-  }
+  };
   const submitLogin = async () => {
     const data = {
-      newMember: member,
+      newMembers: member,
       employees: employee,
       nonEmployees: nonMember,
       city: city._id,
       center: center._id,
       centerManagers: selectCenterManager,
       cityManagers: selectCityManager,
-    }
-    createAttendance(data).then((response) => {
-      console.log("response", JSON.stringify(response));
+      user: userId,
+    };
+    createAttendance(data).then(response => {
       navigation.navigate('Home');
-    })
+    });
   };
   useEffect(() => {
+    AsyncStorageManager.getDataObject('user').then(response => {
+      setUserRole(response.role);
+      setUserId(response._id);
+      if (
+        userRole !== '630e22da936b4c901f78dc2d'
+      ) {
+        handleCenterAndCityManagers(response.center[0], response.city[0]);
+      }
+      if(isFocused){
+        AsyncStorageManager.getDataObject('user').then(response => {
+          console.log('response', response.role);
+          setUserRole(response.role);
+          setUserId(response._id);
+          if (
+            userRole !== '630e22da936b4c901f78dc2d'
+           
+          ) {
+            handleCenterAndCityManagers(response.center[0], response.city[0]);
+          }
+        });
+      }
+    },[isFocused]);
+
     getCities()
       .then(response => {
         setCities(response.data);
       })
       .catch(err => console.log(err));
-  }, []);
+    console.log('userRole', userRole);
+    if(isFocused){
+      console.log("isFocused",isFocused)
+     
+    }
+  }, [userRole]);
 
   return (
-    <View style={styles.mainContainer} >
+    <View style={styles.mainContainer}>
       <View style={styles.headerBackground}>
-        <Text style={styles.headerTextStyle}
-        >Add Attendance</Text>
+        <Text style={styles.headerTextStyle}>Add Attendance {userRole}</Text>
       </View>
       <ScrollView>
         <SafeAreaView style={styles.loginMainContainer}>
           <View style={styles.AttendanceTableFormBoxShadow}>
-            <View style={styles.container}>
+           
+             {userRole && userRole === '630e22da936b4c901f78dc2d' ?(
+              <View style={styles.container}>
               <Text style={styles.textInputLabel}>Choose City:</Text>
               <Dropdown
                 style={[styles.dropdown]}
@@ -106,34 +163,37 @@ const AttendanceTableForm = ({ navigation }) => {
                 onChange={e => handleCity(e)}
               />
             </View>
-
-            <View style={styles.container}>
-              <Text style={styles.textInputLabel}>Choose Center:</Text>
-              <Dropdown
-                style={[styles.dropdown]}
-                placeholderStyle={styles.placeholderStyle}
-                selectedTextStyle={styles.selectedTextStyle}
-                inputSearchStyle={styles.inputSearchStyle}
-                iconStyle={styles.iconStyle}
-                data={centers}
-                maxHeight={300}
-                labelField="name"
-                valueField="name"
-                placeholder={!isFocus ? 'choose Center' : '...'}
-                value={center}
-                onFocus={() => setIsFocus(true)}
-                onBlur={() => setIsFocus(false)}
-                onChange={selectCenter}
-              />
-            </View>
+             ): null }
+          
+            {userRole && userRole === '630e22da936b4c901f78dc2d'
+            ? (
+              <View style={styles.container}>
+                <Text style={styles.textInputLabel}>Choose Center:</Text>
+                <Dropdown
+                  style={[styles.dropdown]}
+                  placeholderStyle={styles.placeholderStyle}
+                  selectedTextStyle={styles.selectedTextStyle}
+                  inputSearchStyle={styles.inputSearchStyle}
+                  iconStyle={styles.iconStyle}
+                  data={centers}
+                  maxHeight={300}
+                  labelField="name"
+                  valueField="name"
+                  placeholder={!isFocus ? 'choose Center' : '...'}
+                  value={center}
+                  onFocus={() => setIsFocus(true)}
+                  onBlur={() => setIsFocus(false)}
+                  onChange={selectCenter}
+                />
+              </View>
+            ) : null}
 
             <View style={styles.container}>
               <Text style={styles.textInputLabel}>City Manager:</Text>
               <MultiSelect
                 style={[styles.dropdown]}
                 placeholderStyle={styles.placeholderStyle}
-                selectedTextStyle={styles.selectedTextStyle}
-                inputSearchStyle={styles.inputSearchStyle}
+                selectedTe
                 iconStyle={styles.iconStyle}
                 data={cityManagers}
                 maxHeight={300}
@@ -163,7 +223,7 @@ const AttendanceTableForm = ({ navigation }) => {
                 value={selectCenterManager}
                 onFocus={() => setIsFocus(true)}
                 onBlur={() => setIsFocus(false)}
-                onChange={(e) => setSelectCenterManager(e)}
+                onChange={e => setSelectCenterManager(e)}
               />
             </View>
 
@@ -171,7 +231,7 @@ const AttendanceTableForm = ({ navigation }) => {
               <Text style={styles.textInputLabel}>new memeber:</Text>
               <TouchableOpacity>
                 <TextInput
-                  keyboardType='numeric'
+                  keyboardType="numeric"
                   onPressOut={() => setIsFocus(false)}
                   value={member}
                   onChangeText={Text => setmember(Text)}
@@ -189,7 +249,7 @@ const AttendanceTableForm = ({ navigation }) => {
                   value={nonMember}
                   onChangeText={Text => setnonMember(Text)}
                   placeholderTextColor="gray"
-                  keyboardType='numeric'
+                  keyboardType="numeric"
                   placeholder="Enter non employee"
                   style={styles.textInputText}
                 />
@@ -204,14 +264,16 @@ const AttendanceTableForm = ({ navigation }) => {
                   value={employee}
                   onChangeText={Text => setEmployee(Text)}
                   placeholderTextColor="gray"
-                  keyboardType='numeric'
+                  keyboardType="numeric"
                   placeholder="Enter employees"
                   style={styles.textInputText}
                 />
               </TouchableOpacity>
             </View>
             <TouchableOpacity style={styles.loginButton}>
-              <Text onPress={submitLogin} style={styles.loginButton1}>Submit</Text>
+              <Text onPress={submitLogin} style={styles.loginButton1}>
+                Submit
+              </Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>
@@ -223,14 +285,13 @@ const AttendanceTableForm = ({ navigation }) => {
 export default AttendanceTableForm;
 
 const styles = StyleSheet.create({
-
   AttendanceTableFormBoxShadow: {
     width: '90%',
     marginTop: 7,
     paddingTop: 10,
     marginBottom: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: -2, height: 4 },
+    shadowColor: '#000',
+    shadowOffset: {width: -2, height: 4},
     shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 0,
@@ -267,16 +328,13 @@ const styles = StyleSheet.create({
   textInputLabel: {
     fontSize: 18,
     marginTop: 3,
-    color: "#334FE5",
+    color: '#334FE5',
     marginBottom: 3,
   },
   textInputText: {
     fontSize: 17,
     borderBottomWidth: 1,
     borderBottomColor: 'black',
-
-
-
   },
   loginButton: {
     marginTop: 20,
@@ -284,13 +342,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(0,0,0,0.2)',
     borderRadius: 15,
-    backgroundColor: "#334FE5",
+    backgroundColor: '#334FE5',
     height: 50,
     marginVertical: 10,
     marginLeft: 15,
     marginRight: 15,
     paddingHorizontal: 10,
-    width: '90%'
+    width: '90%',
   },
   loginButton1: {
     fontSize: 20,
@@ -367,7 +425,7 @@ const styles = StyleSheet.create({
     textTransform: 'capitalize',
     fontWeight: 'bold',
     paddingBottom: 3,
-    textAlign: 'center'
+    textAlign: 'center',
   },
   headerTextStyle: {
     fontSize: 24,
@@ -383,5 +441,5 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     paddingTop: 15,
     textAlign: 'center',
-  }
+  },
 });

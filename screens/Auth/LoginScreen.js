@@ -17,6 +17,7 @@ import AsyncStorageManager from '../../Managers/AsyncStorageManager';
 import { login } from '../../services/AuthService';
 import { Formik } from 'formik';
 import * as yup from 'yup';
+import { useIsFocused } from "@react-navigation/native";
 const ValidationSchema = yup.object().shape({
   email: yup
     .string()
@@ -28,6 +29,7 @@ const ValidationSchema = yup.object().shape({
     .required('Password is required'),
 });
 const LoginScreen = () => {
+  const isFocused = useIsFocused();
   const navigation = useNavigation();
   const [user, SetUser] = useState({
     email: '',
@@ -38,8 +40,8 @@ const LoginScreen = () => {
     try {
       login(values)
         .then(response => {
-          console.log('response', response)
-          AsyncStorageManager.storeDataObject('user', response.data.user);
+          console.log('response', response.data.newUser)
+          AsyncStorageManager.storeDataObject('user', response.data.newUser);
           AsyncStorageManager.storeDataObject('token', response.data.token);
           ToastAndroid.showWithGravity(
             JSON.stringify("Login Successfully"),
@@ -59,6 +61,13 @@ const LoginScreen = () => {
       console.log(error);
     }
   };
+
+  useEffect(()=>{
+    if(isFocused){
+     AsyncStorageManager.clearAllAsyncData();
+    }
+    console.log("user data")
+  },[isFocused])
 
   return (
     <View style={styles.mainContainer}>
@@ -275,7 +284,6 @@ const styles = StyleSheet.create({
   },
   dontHaveAccount: {
     display: 'flex',
-    // borderWidth: 2,
     width: '60%',
     flexDirection: 'row',
   },

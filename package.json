@@ -6,7 +6,6 @@
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "start": "react-native start  --reset-cache",
-
     "test": "jest",
     "lint": "eslint ."
   },
@@ -33,6 +32,7 @@
     "react-native-calendar-picker": "^7.1.2",
     "react-native-chart-kit": "^6.12.0",
     "react-native-date-picker": "^4.2.5",
+    "react-native-daterange-picker": "^1.5.1",
     "react-native-element-dropdown": "^2.3.0",
     "react-native-gesture-handler": "^2.5.0",
     "react-native-linear-gradient": "^2.6.2",

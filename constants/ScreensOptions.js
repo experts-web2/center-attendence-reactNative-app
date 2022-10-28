@@ -8,6 +8,9 @@ import Home from '../screens/home/Home';
 import Profile from '../screens/profile/Profile';
 import Users from '../screens/users/Users';
 import AttendenceChart from '../screens/charts/AttendenceChart';
+import UpdateFormScreen from '../components/allScreens/UpdateFormScreen';
+import AttendanceTableForm from '../screens/attendance/AttendanceTableForm';
+
 
 export const AllScreens = [
   {
@@ -91,5 +94,26 @@ export const AllScreens = [
       title: 'Chart',
       headerShown: false,
     },
+   
   },
+  {
+    name: 'UpdateAttendence',
+    screen: 'UpdateAttendence',
+    component: UpdateFormScreen,
+    options: {
+      title: 'UpdateAttendence',
+      headerShown: false,
+    },
+  },
+  {
+    name: 'attendenceForm',
+    screen: 'attendenceForm',
+    component: AttendanceTableForm,
+    options: {
+      title: 'attendenceForm',
+      headerShown: false,
+    },
+  },
+ 
 ];
+

@@ -5,7 +5,7 @@ class AsyncStorageManager {
       console.log('sdsdsdsd', key, value);
       await AsyncStorage.setItem(key, value);
     } catch (e) {
-      console.log('SAVING ERROR');
+      console.log('SAVING ERROR 23');
     }
   };
 
@@ -15,7 +15,7 @@ class AsyncStorageManager {
       const jsonValue = JSON.stringify(value);
       await AsyncStorage.setItem(key, jsonValue);
     } catch (e) {
-      console.log('SAVING ERROR');
+      console.log('SAVING ERROR 234');
     }
   };
 
@@ -41,7 +41,9 @@ class AsyncStorageManager {
   };
 
   async clearAllAsyncData() {
+    console.log("clear all data");
     await AsyncStorage.clear();
+    console.log("clear all data23");
     AsyncStorage.getAllKeys().then(keys => AsyncStorage.multiRemove(keys));
   }
 }

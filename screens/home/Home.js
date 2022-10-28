@@ -5,47 +5,72 @@ import {
   FlatList,
   Modal,
   TouchableOpacity,
-  Image
+  Image,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { Tab_MyFilters } from '../../assets/images';
+import React, {useEffect, useState} from 'react';
+import {Tab_MyFilters} from '../../assets/images';
 import moment from 'moment';
-import { getAttendance } from '../../services/attendaceService'
+import {getAttendance} from '../../services/attendaceService';
 import Filteration from '../attendance/Filteration';
-import { Dimensions } from 'react-native';
-import {  useIsFocused } from '@react-navigation/native';
-import Animated, {  Layout, useAnimatedScrollHandler, useSharedValue} from 'react-native-reanimated';
-const Home = () => {
+import {Dimensions} from 'react-native';
+import AsyncStorageManager from '../../Managers/AsyncStorageManager';
+import {useIsFocused} from '@react-navigation/native';
+import Animated, {
+  Layout,
+  useAnimatedScrollHandler,
+  useSharedValue,
+} from 'react-native-reanimated';
+const Home = ({navigation}) => {
   const scrollOffset = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler({
-    onScroll: (event) => {
-      console.log("scrollOffset",event)
+    onScroll: event => {
+      console.log('scrollOffset', event);
       scrollOffset.value = event.contentOffset.y;
     },
   });
 
-const isFocused = useIsFocused();
+  const isFocused = useIsFocused();
+  const [userRole, setUserRole] = useState('');
+  const [role, setRole] = useState('');
   const [attendances, setAttendances] = useState([]);
   const [showFilter, setShowFilter] = useState(false);
   const [attendanceFilters, setAttendanceFilters] = useState({
-    city: null,
     center: null,
+    city: null,
   });
   const getAllAttendencesData = async () => {
-    await getAttendance(attendanceFilters)
+    await getAttendance({userRole})
       .then(response => {
         setAttendances(response.data);
       })
       .catch(err => console.log(err));
   };
   useEffect(() => {
-      getAllAttendencesData();
-  }, [isFocused]);
+    AsyncStorageManager.getDataObject('user')
+      .then(response => {
+        console.log('response', response.center[0]);
+        setUserRole(response.center[0]);
+        setRole(response.role);
+      })
+      .then(res => {
+        getAllAttendencesData();
+      });
+    if (isFocused) {
+      AsyncStorageManager.getDataObject('user')
+        .then(response => {
+          console.log('response', response.center[0]);
+          setUserRole(response.center[0]);
+          setRole(response.role);
+        })
+        .then(res => {
+          getAllAttendencesData();
+        });
+    }
+  }, [isFocused, userRole]);
   return (
     <View style={styles.homeWrapper}>
       <View style={styles.headerBackground}>
-        <Text style={styles.headerTextStyle}
-        >All Attendances</Text>
+        <Text style={styles.headerTextStyle}>All Attendances {role}</Text>
       </View>
       <View>
         <View style={styles.mainFilterIcon}>
@@ -53,14 +78,16 @@ const isFocused = useIsFocused();
             style={styles.filterIcon}
             onPress={() => setShowFilter(!showFilter)}>
             <Image source={Tab_MyFilters} style={styles.filterIconImage} />
-            <Text style={styles.filterIconText}>
-              filter
-            </Text>
+            <Text style={styles.filterIconText}>filter</Text>
           </TouchableOpacity>
         </View>
         <Modal visible={showFilter} transparent={true}>
-          <View style={{ width: 100, height: 700 }}>
-            <Filteration setShowFilter={setShowFilter} showFilter={showFilter} setAttendances={setAttendances} />
+          <View style={{width: 100, height: 700}}>
+            <Filteration
+              setShowFilter={setShowFilter}
+              showFilter={showFilter}
+              setAttendances={setAttendances}
+            />
           </View>
         </Modal>
       </View>
@@ -68,58 +95,69 @@ const isFocused = useIsFocused();
         <FlatList
           data={attendances}
           keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item },index) => (
-            <TouchableOpacity>
-              <Animated.ScrollView 
-              onScroll={scrollHandler}
-              style={styles.animationattendanceCard}  key={index}
-                 layout={Layout.springify()}
-                 >
-              <View style={styles.userContainer}>
-                <View style={styles.userDetail1}>
+          renderItem={({item}, index) => (
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate('UpdateAttendence', {item: item});
+              }}>
+              <Animated.ScrollView
+                onScroll={scrollHandler}
+                style={styles.animationattendanceCard}
+                key={index}
+                layout={Layout.springify()}>
+                <View style={styles.userContainer}>
+                  {/* <View style={styles.userDetail1}>
                   <Text style={styles.userName}>City:</Text>
                   <Text style={styles.userEmail}>{item.city.name}</Text>
-                </View>
-                <View style={styles.userDetail}>
+                </View> */}
+                  {/* <View style={styles.userDetail}>
                   <Text style={styles.userName}>Center:</Text>
                   <Text style={styles.userEmail}>{item?.center.name}</Text>
-                </View>
-                <View style={styles.userDetail}>
-                  <Text style={styles.userName}>City Manager:</Text>
-                  <Text style={styles.userEmail}>
-                    {item.cityManager.map((items, index) => {
-                      return index === item.cityManager.length - 1 ? items : items + ','
-                    })}
-                  </Text>
-                </View>
-                <View style={styles.userDetail}>
-                  <Text style={styles.userName}>Center Manager:</Text>
-                  <Text style={styles.userEmail}>
-                    {item.centerManager.map((items, index) => {
-                      return index === item.centerManager.length - 1 ? items : items + ','
-                    })}
-                  </Text>
-                </View>
-                <View style={styles.userDetail}>
+                </View> */}
+                  <View style={styles.userDetail2}>
+                    <Text style={styles.userName}>Dated:</Text>
+                    <Text style={styles.userEmail}>
+                      {moment(item?.date).format('MMM Do YY')}
+                    </Text>
+                  </View>
+                  <View style={styles.userDetail}>
+                    <Text style={styles.userName}>City Manager:</Text>
+                    <Text style={styles.userEmail}>
+                      {item.cityManager.map((items, index) => {
+                        return index === item.cityManager.length - 1
+                          ? items
+                          : items + ',';
+                      })}
+                    </Text>
+                  </View>
+                  <View style={styles.userDetail}>
+                    <Text style={styles.userName}>Center Manager:</Text>
+                    <Text style={styles.userEmail}>
+                      {item.centerManager?.map((items, index) => {
+                        return index === item.centerManager.length - 1
+                          ? items
+                          : items + ',';
+                      })}
+                    </Text>
+                  </View>
+                  {/* <View style={styles.userDetail}>
                   <Text style={styles.userName}>new Member:</Text>
                   <Text style={styles.userEmail}>{item?.newMembers}</Text>
                 </View>
                 <View style={styles.userDetail}>
                   <Text style={styles.userName}>Non Member:</Text>
                   <Text style={styles.userEmail}>{item.nonEmployees}</Text>
+                </View> */}
                 </View>
-                <View style={styles.userDetail2}>
-                  <Text style={styles.userName}>Dated:</Text>
-                  <Text style={styles.userEmail}>
-                    {moment(item?.date).format('MMM Do YY')}
-                  </Text>
-                </View>
-
-              </View>
               </Animated.ScrollView>
             </TouchableOpacity>
           )}
         />
+        <TouchableOpacity>
+          <View style={styles.designNextButton}>
+            <Text style={{textAlign: 'center'}}>Next</Text>
+          </View>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -141,6 +179,7 @@ const styles = StyleSheet.create({
     width: '100%',
     border: 1,
     borderRadius: 5,
+    paddingBottom: 70,
   },
   flatList1: {
     border: 1,
@@ -150,11 +189,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 7,
     marginBottom: 15,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: {width: -2, height: 4},
     shadowOpacity: 0.2,
     shadowRadius: 3,
-    elevation:0,
+    elevation: 0,
     justifyContent: 'space-between',
     width: '100%',
     color: '#000',
@@ -162,7 +201,7 @@ const styles = StyleSheet.create({
     boxShadow: '10 10 10 rgba(10, 10, 0, 0.1)',
     borderRadius: 20,
     borderWidth: 1,
-    paddingHorizontal:15,
+    paddingHorizontal: 15,
     backgroundColor: '#fff',
   },
   userName: {
@@ -214,7 +253,7 @@ const styles = StyleSheet.create({
   headerTextStyle: {
     fontSize: 24,
     fontFamily: 'Roboto',
-    backgroundColor: '#334FE5',  
+    backgroundColor: '#334FE5',
     color: '#fff',
     fontWeight: 'bold',
     fontFamily: 'sans-serif',
@@ -268,20 +307,23 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingHorizontal: 15,
   },
-  animationattendanceCard:{
+  animationattendanceCard: {
     transform: [{translateY: 0.5}],
     opacity: 0.5,
     transform: [{translateY: 0.5}],
- 
-    // transform the card to the left and right when scrolling it
     transform: [{translateX: 0.5}],
-
-
-
-   
-
-   
-
-  }
-
+  },
+  designNextButton: {
+    backgroundColor: '#334FE5',
+    width: '20%',
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
+    display: 'flex',
+    borderRadius: 5,
+    position: 'absolute',
+    right: 150,
+    top: 5,
+  },
 });
