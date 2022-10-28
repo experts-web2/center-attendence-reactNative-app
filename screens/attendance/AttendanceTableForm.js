@@ -54,6 +54,7 @@ const AttendanceTableForm = ({navigation}) => {
         );
         setCityManagers(
           response.data.cityManagers.map(item => {
+            console.log('item', item);
             return {...cityManagers, label: item, value: item};
           }),
         );
@@ -65,7 +66,7 @@ const AttendanceTableForm = ({navigation}) => {
     setCenter(e);
     await getUserRolesByCityCenter(e._id, e.city._id)
       .then(response => {
-        console.log('response', JSON.stringify(response.data.cityManagers));
+        console.log('response of city managers', JSON.stringify(response.data.cityManagers));
         setCenterManagers(
           response.data.centerManagers.map(item => {
             return {...centerManagers, label: item, value: item};
@@ -81,6 +82,7 @@ const AttendanceTableForm = ({navigation}) => {
   };
 
   const changeCityManager = e => {
+    console.log('e', e);
     setSelectCityManager(e);
   };
   const submitLogin = async () => {

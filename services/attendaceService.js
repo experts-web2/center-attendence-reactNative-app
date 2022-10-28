@@ -1,8 +1,8 @@
 import {axiosInstance} from './axios';
 
-export const getAttendance = ({userRole}) => {
+export const getAttendance = ({userRole,offset}) => {
     let url = "/attendance";
-    if (userRole) url = url + "?center=" + userRole;
+    if (userRole) url = url + "?center=" + userRole +"&offset="+offset;
     return new Promise((resolve, reject) => {
       axiosInstance
         .get(url)
@@ -52,6 +52,17 @@ export const getAttendance = ({userRole}) => {
     return new Promise((resolve, reject) => {
       axiosInstance
         .post(url, {cityManager })
+        .then((response) => resolve(response))
+        .catch((err) => reject(err));
+    });
+  };
+
+  export const getCenterNmae = (id) => {
+    console.log("centerId",id);
+    const url = `center/${id}`;
+    return new Promise((resolve, reject) => {
+      axiosInstance
+        .get(url)
         .then((response) => resolve(response))
         .catch((err) => reject(err));
     });

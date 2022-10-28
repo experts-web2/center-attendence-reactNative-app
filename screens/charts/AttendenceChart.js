@@ -19,13 +19,13 @@ import moment from 'moment';
 import AsyncStorageManager from '../../Managers/AsyncStorageManager';
 import {Dropdown, MultiSelect} from 'react-native-element-dropdown';
 
-const AttendenceChart = ({navigation}) => {
-  console.log('navigation', navigation.isFocused());
+const AttendenceChart = () => {
+  const isFocused=useIsFocused();
+
   const [startDate, setStartDate] = useState(null);
-  const [nfocus, setNFocuse] = useState(navigation.isFocused());
   const [endDate, setEndDate] = useState(null);
   const [displayedDate, setDisplayedDate] = useState(moment());
-  const [minDate, setMinDate] = useState(moment().set('date', 1));
+  const [minDate, setMinDate] = useState(new Date(2016, 2, 15));
   const [maxDate, setMaxDate] = useState(moment().set('date', 30));
   const [cityManagers, setCityManagers] = useState([]);
   const [selectCityManager, setSelectCityManager] = useState([]);
@@ -33,14 +33,14 @@ const AttendenceChart = ({navigation}) => {
   const [center, setCenter] = useState('');
   const [isFocus, setIsFocus] = useState(false);
   const [chartData, setChartData] = useState();
-  const [labels, setLabels] = useState([]);
-  const [dataset, setDataset] = useState([{data: []}]);
+  const [labels, setLabels] = useState();
+  const [dataset, setDataset] = useState();
 
   const myFun = async (centerID, cityId) => {
     await getUserRolesByCityCenter(centerID, cityId)
       .then(response => {
         setCityManagers(
-          response.data.cityManagers.map(item => {
+          response?.data?.cityManagers.map(item => {
             return {...cityManagers, label: item, value: item};
           }),
         );
@@ -56,8 +56,10 @@ const AttendenceChart = ({navigation}) => {
     await geAttendenciesRecord(cityManager)
       .then(response => {
         setChartData(response.data);
+        setLabels(response?.data?.label);
+        setDataset(response?.data?.dataSet);
 
-        console.log('response of data in graph', JSON.stringify(response.data));
+        console.log('response of data in graph', JSON.stringify(response.data.label));
       })
       .catch(err => console.log(err));
   };
@@ -68,33 +70,17 @@ const AttendenceChart = ({navigation}) => {
       myFun(res.center[0], res.city[0]);
     });
     getAttendenceRecordData();
-  }, [nfocus]);
-
-  const useIsFocused = () => {
-    console.log('useIsFocused called');
-    AsyncStorageManager.getDataObject('user')
-      .then(res => {
-        console.log('res', res.city[0], res.center[0]);
-        setCity(res.city[0]);
-        setCenter(res.center[0]);
-      })
-      .then(res => {
-        console.log('res of async storage', res);
-        getUserRolesByCityCenter(city, center).then(response => {
-          console.log('response', JSON.stringify(response.data.cityManagers));
-          setCityManagers(
-            response.data.cityManagers.map(item => {
-              return {...cityManagers, label: item, value: item};
-            }),
-          );
-        });
-      })
-      .catch(err => console.log(err));
-  };
-
+    if(isFocused){
+      AsyncStorageManager.getDataObject('user').then(res => {
+        myFun(res.center[0], res.city[0]);
+      });
+      getAttendenceRecordData();
+    }
+  }, [isFocused]);
   const changeCityManager = e => {
     setSelectCityManager(e);
   };
+  
 
   return (
     <>
@@ -103,15 +89,7 @@ const AttendenceChart = ({navigation}) => {
       <View style={{backgroundColor: '#F8FAF8', marginTop: 20}}>
         <View style={styles.container}>
           <Text
-            style={styles.textInputLabel}
-            onPress={() => {
-              console.log('called');
-              chartData?.map((item, index) => {
-                console.log('item', item);
-                labels.push(item?.name);
-                dataset[0].data.push(item?.total);
-              });
-            }}>
+            style={styles.textInputLabel}>
             City Manager:
           </Text>
           <MultiSelect
@@ -123,7 +101,7 @@ const AttendenceChart = ({navigation}) => {
             maxHeight={300}
             labelField="label"
             valueField="value"
-            placeholder={!isFocus ? 'choose City Manager' : '...'}
+            placeholder={!isFocus ? 'Choose City Manager' : '...'}
             value={selectCityManager}
             onFocus={() => setIsFocus(true)}
             onBlur={() => setIsFocus(false)}
@@ -139,10 +117,14 @@ const AttendenceChart = ({navigation}) => {
             }}
             startDate={startDate}
             endDate={endDate}
+
             minDate={minDate}
             maxDate={maxDate}
+            dateFormat="YYYY-MM-DD"
+            date={
+                  {startDate:startDate, endDate:endDate}
+            }
             range
-            key={'selection'}
             dayHeaderStyle={{color: 'red'}}
             containerStyle={{
               backgroundColor: 'white',
@@ -158,27 +140,26 @@ const AttendenceChart = ({navigation}) => {
             }}
             selectedTextStyle={{
               color: 'red',
-            }}
+            }} 
             displayedDate={displayedDate}>
             <Text style={{fontSize: 25}}>Select Range</Text>
           </DateRangePicker>
         </View>
-
         <View style={styles.chartTitle}>
-          <Text style={styles.Title}>Attendence of First week{labels}</Text>
+          <Text style={styles.Title}>Attendence of First week</Text>
           <BarChart
             data={{
-              labels: ['Jan', 'Feb', 'March', 'April', 'May', 'June', 'July'],
+              labels:labels && labels ? labels : ['1', '2'],
               datasets: [
-                {
-                  data: [160, 70, 80, 20, 40, 590, 100],
+                { 
+                  data:dataset && dataset ? dataset : [1, 2],
                 },
               ],
             }}
             width={350}
             height={220}
             yAxisLabel=""
-            yAxisSuffix=""
+            yAxisSuffix="%"
             yAxisInterval={1}
             chartConfig={{
               backgroundColor: '#e26a00',
@@ -196,6 +177,7 @@ const AttendenceChart = ({navigation}) => {
                 stroke: '#ffa726',
               },
             }}
+            barPercentage={1}
             bezier
             style={{
               marginVertical: 8,

@@ -10,7 +10,7 @@ import {
 import React, {useEffect, useState} from 'react';
 import {Tab_MyFilters} from '../../assets/images';
 import moment from 'moment';
-import {getAttendance} from '../../services/attendaceService';
+import {getAttendance, getCenterNmae} from '../../services/attendaceService';
 import Filteration from '../attendance/Filteration';
 import {Dimensions} from 'react-native';
 import AsyncStorageManager from '../../Managers/AsyncStorageManager';
@@ -24,33 +24,48 @@ const Home = ({navigation}) => {
   const scrollOffset = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: event => {
-      console.log('scrollOffset', event);
       scrollOffset.value = event.contentOffset.y;
     },
   });
-
   const isFocused = useIsFocused();
   const [userRole, setUserRole] = useState('');
   const [role, setRole] = useState('');
   const [attendances, setAttendances] = useState([]);
   const [showFilter, setShowFilter] = useState(false);
+  const [userRoleName, setUserRoleName] = useState('');
   const [attendanceFilters, setAttendanceFilters] = useState({
     center: null,
     city: null,
   });
+  const [offset, setoffset] = useState(0);
+  const [limit, setlimit] = useState(4);
+
   const getAllAttendencesData = async () => {
-    await getAttendance({userRole})
+    await getAttendance({userRole, offset, limit})
       .then(response => {
         setAttendances(response.data);
       })
       .catch(err => console.log(err));
   };
+  const handleNextItems = async () => {
+    setoffset(offset + 1);
+  };
+  useEffect(() => {
+    getAttendance({userRole, offset})
+      .then(response => {
+        setAttendances(response.data);
+      })
+      .catch(err => console.log(err));
+  }, [offset]);
+
   useEffect(() => {
     AsyncStorageManager.getDataObject('user')
       .then(response => {
-        console.log('response', response.center[0]);
         setUserRole(response.center[0]);
         setRole(response.role);
+        getCenterNmae(response.center[0]).then(response => {
+          console.log('response of center id', response.data);
+        });
       })
       .then(res => {
         getAllAttendencesData();
@@ -58,9 +73,12 @@ const Home = ({navigation}) => {
     if (isFocused) {
       AsyncStorageManager.getDataObject('user')
         .then(response => {
-          console.log('response', response.center[0]);
           setUserRole(response.center[0]);
           setRole(response.role);
+          getCenterNmae(response.center[0]).then(response => {
+            console.log('response of center id', response.data.name);
+            setUserRoleName(response.data.name);
+          });
         })
         .then(res => {
           getAllAttendencesData();
@@ -80,6 +98,9 @@ const Home = ({navigation}) => {
             <Image source={Tab_MyFilters} style={styles.filterIconImage} />
             <Text style={styles.filterIconText}>filter</Text>
           </TouchableOpacity>
+        </View>
+        <View>
+          <Text style={styles.userCenter}>{userRoleName}</Text>
         </View>
         <Modal visible={showFilter} transparent={true}>
           <View style={{width: 100, height: 700}}>
@@ -121,6 +142,10 @@ const Home = ({navigation}) => {
                     </Text>
                   </View>
                   <View style={styles.userDetail}>
+                    <Text style={styles.userName}>New Member:</Text>
+                    <Text style={styles.userEmail}>{item?.newMembers}</Text>
+                  </View>
+                  <View style={styles.userDetail}>
                     <Text style={styles.userName}>City Manager:</Text>
                     <Text style={styles.userEmail}>
                       {item.cityManager.map((items, index) => {
@@ -140,10 +165,7 @@ const Home = ({navigation}) => {
                       })}
                     </Text>
                   </View>
-                  {/* <View style={styles.userDetail}>
-                  <Text style={styles.userName}>new Member:</Text>
-                  <Text style={styles.userEmail}>{item?.newMembers}</Text>
-                </View>
+                  {/*
                 <View style={styles.userDetail}>
                   <Text style={styles.userName}>Non Member:</Text>
                   <Text style={styles.userEmail}>{item.nonEmployees}</Text>
@@ -153,7 +175,7 @@ const Home = ({navigation}) => {
             </TouchableOpacity>
           )}
         />
-        <TouchableOpacity>
+        <TouchableOpacity onPress={handleNextItems}>
           <View style={styles.designNextButton}>
             <Text style={{textAlign: 'center'}}>Next</Text>
           </View>
@@ -299,6 +321,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginLeft: 20,
   },
+  userCenter: {
+    fontSize: 24,
+    color: '#000',
+    fontWeight: 'bold',
+    marginLeft: 20,
+  },
   mainFilterIcon: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -324,6 +352,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     position: 'absolute',
     right: 150,
-    top: 5,
+    bottom:-12
   },
 });
