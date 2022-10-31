@@ -20,7 +20,7 @@ import AsyncStorageManager from '../../Managers/AsyncStorageManager';
 import {Dropdown, MultiSelect} from 'react-native-element-dropdown';
 
 const AttendenceChart = () => {
-  const isFocused=useIsFocused();
+  const isFocused = useIsFocused();
 
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -59,7 +59,10 @@ const AttendenceChart = () => {
         setLabels(response?.data?.label);
         setDataset(response?.data?.dataSet);
 
-        console.log('response of data in graph', JSON.stringify(response.data.label));
+        console.log(
+          'response of data in graph',
+          JSON.stringify(response.data.label),
+        );
       })
       .catch(err => console.log(err));
   };
@@ -70,7 +73,7 @@ const AttendenceChart = () => {
       myFun(res.center[0], res.city[0]);
     });
     getAttendenceRecordData();
-    if(isFocused){
+    if (isFocused) {
       AsyncStorageManager.getDataObject('user').then(res => {
         myFun(res.center[0], res.city[0]);
       });
@@ -80,7 +83,6 @@ const AttendenceChart = () => {
   const changeCityManager = e => {
     setSelectCityManager(e);
   };
-  
 
   return (
     <>
@@ -88,10 +90,7 @@ const AttendenceChart = () => {
 
       <View style={{backgroundColor: '#F8FAF8', marginTop: 20}}>
         <View style={styles.container}>
-          <Text
-            style={styles.textInputLabel}>
-            City Manager:
-          </Text>
+          <Text style={styles.textInputLabel}>City Manager:</Text>
           <MultiSelect
             style={[styles.dropdown]}
             placeholderStyle={styles.placeholderStyle}
@@ -117,13 +116,10 @@ const AttendenceChart = () => {
             }}
             startDate={startDate}
             endDate={endDate}
-
             minDate={minDate}
             maxDate={maxDate}
             dateFormat="YYYY-MM-DD"
-            date={
-                  {startDate:startDate, endDate:endDate}
-            }
+            date={{startDate: startDate, endDate: endDate}}
             range
             dayHeaderStyle={{color: 'red'}}
             containerStyle={{
@@ -140,19 +136,19 @@ const AttendenceChart = () => {
             }}
             selectedTextStyle={{
               color: 'red',
-            }} 
+            }}
             displayedDate={displayedDate}>
-            <Text style={{fontSize: 25}}>Select Range</Text>
+            <Text style={{fontSize: 25,marginLeft:10}}>Select Range</Text>
           </DateRangePicker>
         </View>
         <View style={styles.chartTitle}>
           <Text style={styles.Title}>Attendence of First week</Text>
           <BarChart
             data={{
-              labels:labels && labels ? labels : ['1', '2'],
+              labels: labels && labels ? labels : ['1', '2'],
               datasets: [
-                { 
-                  data:dataset && dataset ? dataset : [1, 2],
+                {
+                  data: dataset && dataset ? dataset : [1, 2],
                 },
               ],
             }}

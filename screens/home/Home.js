@@ -15,12 +15,18 @@ import Filteration from '../attendance/Filteration';
 import {Dimensions} from 'react-native';
 import AsyncStorageManager from '../../Managers/AsyncStorageManager';
 import {useIsFocused} from '@react-navigation/native';
+import {useTranslation} from 'react-i18next';
+import i18n from '../../services/i18';
+const initI18n = i18n;
+
 import Animated, {
   Layout,
   useAnimatedScrollHandler,
   useSharedValue,
 } from 'react-native-reanimated';
+import {Button} from 'native-base';
 const Home = ({navigation}) => {
+  const {t, i18n} = useTranslation();
   const scrollOffset = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: event => {
@@ -88,15 +94,31 @@ const Home = ({navigation}) => {
   return (
     <View style={styles.homeWrapper}>
       <View style={styles.headerBackground}>
-        <Text style={styles.headerTextStyle}>All Attendances {role}</Text>
+        <Text style={styles.headerTextStyle}>{t('All Attendences')}</Text>
       </View>
+      <TouchableOpacity>
+        <Button
+          onPress={() => {
+            i18n.changeLanguage('ur');
+          }}>
+          Urdu
+        </Button>
+      </TouchableOpacity>
+      <TouchableOpacity>
+        <Button
+          onPress={() => {
+            i18n.changeLanguage('en');
+          }}>
+          English
+        </Button>
+      </TouchableOpacity>
       <View>
         <View style={styles.mainFilterIcon}>
           <TouchableOpacity
             style={styles.filterIcon}
             onPress={() => setShowFilter(!showFilter)}>
             <Image source={Tab_MyFilters} style={styles.filterIconImage} />
-            <Text style={styles.filterIconText}>filter</Text>
+            <Text style={styles.filterIconText}>{t('filter')}</Text>
           </TouchableOpacity>
         </View>
         <View>
@@ -136,17 +158,17 @@ const Home = ({navigation}) => {
                   <Text style={styles.userEmail}>{item?.center.name}</Text>
                 </View> */}
                   <View style={styles.userDetail2}>
-                    <Text style={styles.userName}>Dated:</Text>
+                    <Text style={styles.userName}>{t('Dated')}:</Text>
                     <Text style={styles.userEmail}>
                       {moment(item?.date).format('MMM Do YY')}
                     </Text>
                   </View>
                   <View style={styles.userDetail}>
-                    <Text style={styles.userName}>New Member:</Text>
+                    <Text style={styles.userName}>{t('New Member')}:</Text>
                     <Text style={styles.userEmail}>{item?.newMembers}</Text>
                   </View>
                   <View style={styles.userDetail}>
-                    <Text style={styles.userName}>City Manager:</Text>
+                    <Text style={styles.userName}>{t('City Manager')}:</Text>
                     <Text style={styles.userEmail}>
                       {item.cityManager.map((items, index) => {
                         return index === item.cityManager.length - 1
@@ -156,7 +178,7 @@ const Home = ({navigation}) => {
                     </Text>
                   </View>
                   <View style={styles.userDetail}>
-                    <Text style={styles.userName}>Center Manager:</Text>
+                    <Text style={styles.userName}>{t('Center Manager')}:</Text>
                     <Text style={styles.userEmail}>
                       {item.centerManager?.map((items, index) => {
                         return index === item.centerManager.length - 1
@@ -352,6 +374,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     position: 'absolute',
     right: 150,
-    bottom:-12
+    bottom: -12,
   },
 });

@@ -41,9 +41,9 @@ class AsyncStorageManager {
   };
 
   async clearAllAsyncData() {
-    console.log("clear all data");
+    console.log('clear all data');
     await AsyncStorage.clear();
-    console.log("clear all data23");
+    console.log('clear all data23');
     AsyncStorage.getAllKeys().then(keys => AsyncStorage.multiRemove(keys));
   }
 }

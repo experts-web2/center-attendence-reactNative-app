@@ -8,34 +8,32 @@ import {
   Button,
   TouchableOpacity,
   FlatList,
-  Dimensions
+  Dimensions,
 } from 'react-native';
-import { getAttendance } from "../../services/attendaceService";
+import {getAttendance} from '../../services/attendaceService';
 import moment from 'moment';
-import { useEffect, useState } from 'react';
+import {useEffect, useState} from 'react';
 import AsyncStorageManager from '../../Managers/AsyncStorageManager';
-import {
-  ProgressChart,
-} from "react-native-chart-kit";
+import {ProgressChart} from 'react-native-chart-kit';
 const data = {
-  labels: ["Attendences", "Absent", "Total "],
-  data: [0.4, 0.6, 0.8]
+  labels: ['Attendences', 'Absent', 'Total '],
+  data: [0.4, 0.6, 0.8],
 };
 const chartConfig = {
-  backgroundGradientFrom: "#1E2923",
+  backgroundGradientFrom: '#1E2923',
   backgroundGradientFromOpacity: 0,
-  backgroundGradientTo: "#08130D",
+  backgroundGradientTo: '#08130D',
   backgroundGradientToOpacity: 0.5,
   color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
   strokeWidth: 2,
   barPercentage: 0.5,
-  useShadowColorFromDataset: false
+  useShadowColorFromDataset: false,
 };
 import React from 'react';
 import LinearGradient from 'react-native-linear-gradient';
-const Profile = ({ navigation }) => {
+const Profile = ({navigation}) => {
   const [attendances, setAttendances] = useState([]);
-  const [attendanceFilters, setAttendanceFilters] = useState({ 
+  const [attendanceFilters, setAttendanceFilters] = useState({
     city: null,
     center: null,
   });
@@ -48,20 +46,22 @@ const Profile = ({ navigation }) => {
       .catch(err => console.log(err));
   };
   useEffect(() => {
-    AsyncStorageManager.getDataObject("user").then((res) => {
-      console.log('res', res)
-    })
-    getAllAttendencesData()
-  },[])
+    AsyncStorageManager.getDataObject('user').then(res => {
+      console.log('res', res);
+    });
+    getAllAttendencesData();
+  }, []);
   const LogOutUser = async () => {
     await AsyncStorageManager.clearAllAsyncData();
     navigation.navigate('Login');
-  }
+  };
   return (
     <SafeAreaView>
       <View style={styles.mainProfilePage}>
         <View style={styles.userProfileContainer}>
-          <LinearGradient colors={['#4c669f', '#3b5998', '#192f6a']} style={styles.linearGradient}>
+          <LinearGradient
+            colors={['#4c669f', '#3b5998', '#192f6a']}
+            style={styles.linearGradient}>
             <Image
               style={styles.userProfile}
               source={require('../../assets/images/user.jpg')}
@@ -75,7 +75,7 @@ const Profile = ({ navigation }) => {
         <View style={styles.userProfileChart}>
           <ProgressChart
             data={data}
-            width={Dimensions.get("window").width}
+            width={Dimensions.get('window').width}
             height={150}
             strokeWidth={8}
             radius={22}
@@ -83,15 +83,19 @@ const Profile = ({ navigation }) => {
             hideLegend={false}
           />
         </View>
-        <TouchableOpacity style={{ padding: 10 }}>
-          <Button title="Logout" style={{ padding: 10, borderWidth: 2, borderRadius: 10 }} onPress={LogOutUser} />
+        <TouchableOpacity style={{padding: 10}}>
+          <Button
+            title="Logout"
+            style={{padding: 10, borderWidth: 2, borderRadius: 10}}
+            onPress={LogOutUser}
+          />
         </TouchableOpacity>
         <ScrollView>
           <View style={styles.divCreator}>
             <FlatList
               data={attendances}
               keyExtractor={(item, index) => index.toString()}
-              renderItem={({ item }) => (
+              renderItem={({item}) => (
                 <TouchableOpacity>
                   <View style={styles.userContainer}>
                     <View style={styles.userDetail1}>
@@ -106,7 +110,9 @@ const Profile = ({ navigation }) => {
                       <Text style={styles.userName}>City Manager:</Text>
                       <Text style={styles.userEmail}>
                         {item.cityManager.map((items, index) => {
-                          return index === item.cityManager.length - 1 ? items : items + ','
+                          return index === item.cityManager.length - 1
+                            ? items
+                            : items + ',';
                         })}
                       </Text>
                     </View>
@@ -114,7 +120,9 @@ const Profile = ({ navigation }) => {
                       <Text style={styles.userName}>Center Manager:</Text>
                       <Text style={styles.userEmail}>
                         {item.centerManager.map((items, index) => {
-                          return index === item.centerManager.length - 1 ? items : items + ','
+                          return index === item.centerManager.length - 1
+                            ? items
+                            : items + ',';
                         })}
                       </Text>
                     </View>
@@ -171,7 +179,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 80,
     left: 20,
-
   },
   userDetail: {
     flexDirection: 'row',
@@ -216,8 +223,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 7,
     marginBottom: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: -2, height: 4 },
+    shadowColor: '#000',
+    shadowOffset: {width: -2, height: 4},
     shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 0,
@@ -280,7 +287,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     borderRadius: 5,
 
-    marginRight: 20
+    marginRight: 20,
   },
   mainProfilePage: {
     backgroundColor: '#F8FAF8',

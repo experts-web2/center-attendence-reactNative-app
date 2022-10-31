@@ -1,0 +1,78 @@
+import i18n from 'i18next';
+import {initReactI18next} from 'react-i18next';
+import {getLocales} from 'react-native-localize';
+i18n.use(initReactI18next).init({
+  compatibilityJSON: 'v3',
+  lng: getLocales()[0].languageCode,
+  fallbackLng: 'en',
+  resources: {
+    en: {
+      translation: {
+        filter: 'filter',
+        'All Attendences': 'All Attendences',
+        'Double Phatak': 'Double Phatak',
+        Dated: 'Dated',
+        'New Member': 'New Member',
+        'City Manager': 'City Manager',
+        'Center Manager': 'Center Manager',
+        Next: 'Next',
+        Home: 'Home',
+        Profile: 'Profile',
+        Add: 'Add',
+        Chart: 'Chart',
+        'Choose City': 'Choose City',
+        'Choose Center': 'Choose Center',
+        'City Manager': 'City Manager',
+        'Center Manager': 'Center Manager',
+        'New Member': 'New Member',
+        'Non Employee': 'Non Employee',
+        Employees: 'Employees',
+        'Choose City Manager': 'Choose City Manager',
+        'Add Attendance': 'Add Attendance',
+        'Choose Center Manager': 'Choose Center Manager',
+        'Submit': 'Submit',
+        'Enter New Member': 'Enter New Member',
+        'Enter Non Employee': 'Enter Non Employee',
+        'Enter Employees': 'Enter Employees',
+      },
+    },
+    ur: {
+      translation: {
+        filter: 'فلٹر',
+        'All Attendences': 'تمام حاضریاں',
+        'Double Phatak': 'ڈبل پھاٹک',
+        Dated: 'تاریخ',
+        'New memeber': 'نئے اراکین',
+        'City Manager': 'شہر کے منتظم',
+        'Center Manager': 'مرکز کے منتظم',
+        Next: 'اگلا',
+        Home: 'گھر',
+        Profile: 'پروفائل',
+        Add: 'شامل کریں',
+        Chart: 'چارٹ',
+        'Choose City': 'شہر منتخب کریں',
+        'Choose Center': 'مرکز منتخب کریں',
+        'City Manager': 'شہر کے منتظم',
+        'Center Manager': 'مرکز کے منتظم',
+        'New Member': 'نئے اراکین',
+        'Non Employee': 'غیر ملازمین',
+        Employees: 'ملازمین',
+        'Choose City Manager': 'شہر کے منتظم منتخب کریں',
+        'Add Attendance': 'حاضری شامل کریں',
+        'Choose Center Manager': 'مرکز کے منتظم منتخب کریں',
+        'Submit': 'جمع کرائیں',
+        'Enter New Member': 'نئے اراکین درج کریں',
+        'Enter Non Employee': 'غیر ملازمین درج کریں',
+        'Enter employees': 'ملازمین درج کریں',
+
+      },
+    },
+    de: {
+      translation: {
+        'Hey Yo Im at home': 'Hey Yo Ich bin zu Hause',
+        'Hey Yo Im inside Room': 'Hey Yo Ich bin im Zimmer',
+      },
+    },
+  },
+});
+export default i18n;

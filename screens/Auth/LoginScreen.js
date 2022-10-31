@@ -7,17 +7,17 @@ import {
   TouchableOpacity,
   Button,
   ToastAndroid,
-  Dimensions
+  Dimensions,
 } from 'react-native';
-import { StyleSheet } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import {StyleSheet} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {useNavigation} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import AsyncStorageManager from '../../Managers/AsyncStorageManager';
-import { login } from '../../services/AuthService';
-import { Formik } from 'formik';
+import {login} from '../../services/AuthService';
+import {Formik} from 'formik';
 import * as yup from 'yup';
-import { useIsFocused } from "@react-navigation/native";
+import {useIsFocused} from '@react-navigation/native';
 const ValidationSchema = yup.object().shape({
   email: yup
     .string()
@@ -25,7 +25,7 @@ const ValidationSchema = yup.object().shape({
     .required('Email is required'),
   password: yup
     .string()
-    .min(4, ({ min }) => `Password must be at least ${min} characters`)
+    .min(4, ({min}) => `Password must be at least ${min} characters`)
     .required('Password is required'),
 });
 const LoginScreen = () => {
@@ -33,51 +33,64 @@ const LoginScreen = () => {
   const navigation = useNavigation();
   const [user, SetUser] = useState({
     email: '',
-    password: ''
-  })
+    password: '',
+  });
 
-  const submitLogin = async (values) => {
+  const submitLogin = async values => {
     try {
       login(values)
         .then(response => {
-          console.log('response', response.data.newUser)
+          console.log('response', response.data.newUser);
           AsyncStorageManager.storeDataObject('user', response.data.newUser);
           AsyncStorageManager.storeDataObject('token', response.data.token);
           ToastAndroid.showWithGravity(
-            JSON.stringify("Login Successfully"),
+            JSON.stringify('Login Successfully'),
             ToastAndroid.SHORT,
-            ToastAndroid.CENTER
-          )
+            ToastAndroid.CENTER,
+          );
           setTimeout(() => {
             navigation.navigate('TabBar1');
           }, 1000);
         })
-        .catch(err => ToastAndroid.showWithGravity(
-          JSON.stringify(err),
-          ToastAndroid.SHORT,
-          ToastAndroid.CENTER
-        ));
+        .catch(err =>
+          ToastAndroid.showWithGravity(
+            JSON.stringify(err),
+            ToastAndroid.SHORT,
+            ToastAndroid.CENTER,
+          ),
+        );
     } catch (error) {
       console.log(error);
     }
   };
 
-  useEffect(()=>{
-    if(isFocused){
-     AsyncStorageManager.clearAllAsyncData();
+  useEffect(() => {
+    if (isFocused) {
+      AsyncStorageManager.clearAllAsyncData();
     }
-    console.log("user data")
-  },[isFocused])
+    console.log('user data');
+  }, [isFocused]);
 
   return (
     <View style={styles.mainContainer}>
       <ScrollView>
-        <Formik initialValues={user} validationSchema={ValidationSchema} onSubmit={(values) => {
-          submitLogin(values)
-        }}>
-          {({ values, handleChange, errors, touched, handleBlur, handleReset, handleSubmit }) => {
-            const { email, password } = values
-            console.log('values', touched.email)
+        <Formik
+          initialValues={user}
+          validationSchema={ValidationSchema}
+          onSubmit={values => {
+            submitLogin(values);
+          }}>
+          {({
+            values,
+            handleChange,
+            errors,
+            touched,
+            handleBlur,
+            handleReset,
+            handleSubmit,
+          }) => {
+            const {email, password} = values;
+            console.log('values', touched.email);
             return (
               <SafeAreaView
                 style={[styles.loginMainContainer, styles.boxShadowinLogin]}>
@@ -103,7 +116,9 @@ const LoginScreen = () => {
                   </TouchableOpacity>
                 </View>
                 {errors && errors.email && touched.email ? (
-                  <Text style={{ fontSize: 15, color: 'red', marginLeft: 20 }}>{errors.email}</Text>
+                  <Text style={{fontSize: 15, color: 'red', marginLeft: 20}}>
+                    {errors.email}
+                  </Text>
                 ) : null}
 
                 <View style={styles.signInInputWrapper}>
@@ -121,13 +136,17 @@ const LoginScreen = () => {
                   </TouchableOpacity>
                 </View>
                 {errors && errors.password && touched.password ? (
-                  <Text style={{ fontSize: 15, color: 'red', marginLeft: 20 }}>{errors.password}</Text>
+                  <Text style={{fontSize: 15, color: 'red', marginLeft: 20}}>
+                    {errors.password}
+                  </Text>
                 ) : null}
                 <TouchableOpacity style={styles.loginButton}>
-                  <Text onPress={handleSubmit} style={styles.loginButton1}>Submit</Text>
+                  <Text onPress={handleSubmit} style={styles.loginButton1}>
+                    Submit
+                  </Text>
                 </TouchableOpacity>
               </SafeAreaView>
-            )
+            );
           }}
         </Formik>
 
@@ -143,9 +162,7 @@ const LoginScreen = () => {
           </View>
           <View style={styles.forgetBtn}>
             <TouchableOpacity onPress={() => navigation.navigate('Forget')}>
-              <Text style={styles.dontHaveAccountButton}>
-                forget password
-              </Text>
+              <Text style={styles.dontHaveAccountButton}>forget password</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -167,8 +184,8 @@ const styles = StyleSheet.create({
     marginTop: 7,
     paddingTop: 10,
     marginBottom: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: -2, height: 4 },
+    shadowColor: '#000',
+    shadowOffset: {width: -2, height: 4},
     shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 0,
@@ -195,7 +212,7 @@ const styles = StyleSheet.create({
     shadowColor: 'red',
     shadowOpacity: 1,
     shadowRadius: 10,
-    shadowOffset: { width: 30, height: 30 },
+    shadowOffset: {width: 30, height: 30},
   },
   mainContainer: {
     width: Dimensions.get('window').width,
@@ -241,7 +258,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(0,0,0,0.2)',
     borderRadius: 15,
-    backgroundColor: "#334FE5",
+    backgroundColor: '#334FE5',
     height: 50,
     marginVertical: 10,
     marginLeft: 2,
