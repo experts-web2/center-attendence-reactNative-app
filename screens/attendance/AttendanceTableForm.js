@@ -21,7 +21,6 @@ import {useTranslation} from 'react-i18next';
 import i18n from '../../services/i18';
 const initI18n = i18n;
 
-
 const AttendanceTableForm = ({navigation}) => {
   const {t, i18n} = useTranslation();
   const isFocused = useIsFocused();
@@ -48,13 +47,8 @@ const AttendanceTableForm = ({navigation}) => {
   };
 
   const handleCenterAndCityManagers = async (centerId, cityId) => {
-    console.log('handleCenterAndCityManagers', centerId, cityId);
     await getUserRolesByCityCenter(centerId, cityId)
       .then(response => {
-        console.log(
-          'response api call',
-          JSON.stringify(response.data.cityManagers),
-        );
         setCenterManagers(
           response.data.centerManagers.map(item => {
             return {...centerManagers, label: item, value: item};
@@ -62,7 +56,6 @@ const AttendanceTableForm = ({navigation}) => {
         );
         setCityManagers(
           response.data.cityManagers.map(item => {
-            console.log('item', item);
             return {...cityManagers, label: item, value: item};
           }),
         );
@@ -74,29 +67,17 @@ const AttendanceTableForm = ({navigation}) => {
     setCenter(e);
     await getUserRolesByCityCenter(e._id, e.city._id)
       .then(response => {
-        console.log(
-          'response of city managers',
-          JSON.stringify(response.data.cityManagers),
-        );
-        setCenterManagers(
-          response.data.centerManagers.map(item => {
-            return {...centerManagers, label: item, value: item};
-          }),
-        );
-        setCityManagers(
-          response.data.cityManagers.map(item => {
-            return {...cityManagers, label: item, value: item};
-          }),
-        );
+        setCityManagers(response.data.cityManagers);
+        setCenterManagers(response.data.centerManagers);
       })
       .catch(err => console.log(err));
   };
 
   const changeCityManager = e => {
-    console.log('e', e);
     setSelectCityManager(e);
   };
   const submitLogin = async () => {
+    console.log('submitLogin');
     const data = {
       newMembers: member,
       employees: employee,
@@ -107,6 +88,7 @@ const AttendanceTableForm = ({navigation}) => {
       cityManagers: selectCityManager,
       user: userId,
     };
+    console.log('data', data);
     createAttendance(data).then(response => {
       navigation.navigate('Home');
     });
@@ -138,10 +120,6 @@ const AttendanceTableForm = ({navigation}) => {
         setCities(response.data);
       })
       .catch(err => console.log(err));
-    console.log('userRole', userRole);
-    if (isFocused) {
-      console.log('isFocused', isFocused);
-    }
   }, [userRole]);
 
   return (
@@ -207,7 +185,7 @@ const AttendanceTableForm = ({navigation}) => {
                 maxHeight={300}
                 labelField="label"
                 valueField="value"
-                placeholder={!isFocus ? t ('Choose City Manager') : '...'}
+                placeholder={!isFocus ? t('Choose City Manager') : '...'}
                 value={selectCityManager}
                 onFocus={() => setIsFocus(true)}
                 onBlur={() => setIsFocus(false)}
@@ -280,7 +258,7 @@ const AttendanceTableForm = ({navigation}) => {
             </View>
             <TouchableOpacity style={styles.loginButton}>
               <Text onPress={submitLogin} style={styles.loginButton1}>
-              {t('Submit')}
+                {t('Submit')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -451,3 +429,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+
+
+ // setCenterManagers(
+        //   response.data.centerManagers.map(item => {
+        //     return {...centerManagers, label: item, value: item};
+        //   }),
+        // // );
+        // setCityManagers(
+        //   response.data.cityManagers.map(item => {
+        //     return {...cityManagers, label: item, value: item};
+        //   }),
+        // );

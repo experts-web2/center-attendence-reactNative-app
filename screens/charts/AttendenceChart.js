@@ -6,7 +6,6 @@ import {
   geAttendenciesRecord,
 } from '../../services/attendaceService';
 import {useIsFocused} from '@react-navigation/native';
-
 import {
   LineChart,
   BarChart,
@@ -18,10 +17,13 @@ import {
 import moment from 'moment';
 import AsyncStorageManager from '../../Managers/AsyncStorageManager';
 import {Dropdown, MultiSelect} from 'react-native-element-dropdown';
+import {useTranslation} from 'react-i18next';
+import i18n from '../../services/i18';
+const initI18n = i18n;
 
 const AttendenceChart = () => {
+  const {t, i18n} = useTranslation();
   const isFocused = useIsFocused();
-
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [displayedDate, setDisplayedDate] = useState(moment());
@@ -35,40 +37,28 @@ const AttendenceChart = () => {
   const [chartData, setChartData] = useState();
   const [labels, setLabels] = useState();
   const [dataset, setDataset] = useState();
-
   const myFun = async (centerID, cityId) => {
     await getUserRolesByCityCenter(centerID, cityId)
       .then(response => {
-        setCityManagers(
-          response?.data?.cityManagers.map(item => {
-            return {...cityManagers, label: item, value: item};
-          }),
-        );
+        setCityManagers(response.data.cityManagers);
       })
       .catch(err => console.log(err));
   };
-
   const getAttendenceRecordData = async () => {
-    const cityManager = [
+    const cityManagerss = [
       '635912ddc6be3c8e95045967',
       '632861140e708eff983f1544',
     ];
-    await geAttendenciesRecord(cityManager)
+
+    await geAttendenciesRecord(cityManagerss)
       .then(response => {
         setChartData(response.data);
         setLabels(response?.data?.label);
         setDataset(response?.data?.dataSet);
-
-        console.log(
-          'response of data in graph',
-          JSON.stringify(response.data.label),
-        );
       })
       .catch(err => console.log(err));
   };
-
   useEffect(() => {
-    console.log('useEffect called');
     AsyncStorageManager.getDataObject('user').then(res => {
       myFun(res.center[0], res.city[0]);
     });
@@ -83,14 +73,11 @@ const AttendenceChart = () => {
   const changeCityManager = e => {
     setSelectCityManager(e);
   };
-
   return (
     <>
-      {console.log('chart data', chartData)}
-
       <View style={{backgroundColor: '#F8FAF8', marginTop: 20}}>
         <View style={styles.container}>
-          <Text style={styles.textInputLabel}>City Manager:</Text>
+          <Text style={styles.textInputLabel}>{t('City Manager')}:</Text>
           <MultiSelect
             style={[styles.dropdown]}
             placeholderStyle={styles.placeholderStyle}
@@ -100,7 +87,7 @@ const AttendenceChart = () => {
             maxHeight={300}
             labelField="label"
             valueField="value"
-            placeholder={!isFocus ? 'Choose City Manager' : '...'}
+            placeholder={!isFocus ? t('Choose City Manager') : '...'}
             value={selectCityManager}
             onFocus={() => setIsFocus(true)}
             onBlur={() => setIsFocus(false)}
@@ -138,11 +125,26 @@ const AttendenceChart = () => {
               color: 'red',
             }}
             displayedDate={displayedDate}>
-            <Text style={{fontSize: 25,marginLeft:10}}>Select Range</Text>
+            <Text style={{fontSize: 25, marginLeft: 10}}>
+              {t('Select Range')}
+            </Text>
           </DateRangePicker>
         </View>
         <View style={styles.chartTitle}>
-          <Text style={styles.Title}>Attendence of First week</Text>
+          <Text
+            style={styles.Title}
+            onPress={async () => {
+              await geAttendenciesRecord(selectCityManager)
+                .then(response => {
+                  console.log('response', JSON.stringify(response.data));
+                  setChartData(response.data);
+                  setLabels(response?.data?.label);
+                  setDataset(response?.data?.dataSet);
+                })
+                .catch(err => console.log(err));
+            }}>
+            {t('Attendence of First week')}
+          </Text>
           <BarChart
             data={{
               labels: labels && labels ? labels : ['1', '2'],

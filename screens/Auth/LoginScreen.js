@@ -40,9 +40,9 @@ const LoginScreen = () => {
     try {
       login(values)
         .then(response => {
-          console.log('response', response.data.newUser);
-          AsyncStorageManager.storeDataObject('user', response.data.newUser);
-          AsyncStorageManager.storeDataObject('token', response.data.token);
+          console.log('response', response?.data.newUser);
+          AsyncStorageManager.storeDataObject('user', response?.data.newUser);
+          AsyncStorageManager.storeDataObject('token', response?.data.token);
           ToastAndroid.showWithGravity(
             JSON.stringify('Login Successfully'),
             ToastAndroid.SHORT,

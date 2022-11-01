@@ -14,6 +14,9 @@ import {
 import {Dropdown, MultiSelect} from 'react-native-element-dropdown';
 import {getCities, getCentersByCity} from '../../services/AuthService';
 import {cross} from '../../assets/images';
+import {useTranslation} from 'react-i18next';
+import i18n from '../../services/i18';
+const initI18n = i18n;
 const Filteration = props => {
   const [city, setCity] = useState('choose');
   const [cities, setCities] = useState([]);
@@ -24,6 +27,7 @@ const Filteration = props => {
   const [selectCenterManager, setSelectCenterManager] = useState([]);
   const [centerManagers, setCenterManagers] = useState([]);
   const [cityManagers, setCityManagers] = useState([]);
+  const {t, i18n} = useTranslation();
   const handleCity = async e => {
     setCity(e);
     await getCentersByCity(e._id)
@@ -91,7 +95,7 @@ const Filteration = props => {
             maxHeight={300}
             labelField="name"
             valueField="name"
-            placeholder={!isFocus ? 'choose City' : '...'}
+            placeholder={!isFocus ? t('Choose City') : '...'}
             value={city}
             onFocus={() => setIsFocus(true)}
             onBlur={() => setIsFocus(false)}
@@ -112,7 +116,7 @@ const Filteration = props => {
             maxHeight={300}
             labelField="name"
             valueField="name"
-            placeholder={!isFocus ? 'choose Center' : '...'}
+            placeholder={!isFocus ? t('Choose Center') : '...'}
             value={center}
             onFocus={() => setIsFocus(true)}
             onBlur={() => setIsFocus(false)}
@@ -130,7 +134,7 @@ const Filteration = props => {
             maxHeight={300}
             labelField="label"
             valueField="value"
-            placeholder={!isFocus ? 'choose City Manager' : '...'}
+            placeholder={!isFocus ? t('Choose City Manager') : '...'}
             value={cityManager}
             onFocus={() => setIsFocus(true)}
             onBlur={() => setIsFocus(false)}
@@ -148,7 +152,7 @@ const Filteration = props => {
             maxHeight={300}
             labelField="label"
             valueField="value"
-            placeholder={!isFocus ? 'choose Center Manager' : '...'}
+            placeholder={!isFocus ? t('Choose Center Manager') : '...'}
             value={selectCenterManager}
             onFocus={() => setIsFocus(true)}
             onBlur={() => setIsFocus(false)}
@@ -158,7 +162,7 @@ const Filteration = props => {
         <View style={{paddingTop: 20}}>
           <TouchableOpacity style={styles.loginButton}>
             <Text onPress={filterationFun} style={styles.loginButton1}>
-              Filter
+              {t('filter')}
             </Text>
           </TouchableOpacity>
         </View>

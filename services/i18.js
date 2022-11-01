@@ -30,10 +30,12 @@ i18n.use(initReactI18next).init({
         'Choose City Manager': 'Choose City Manager',
         'Add Attendance': 'Add Attendance',
         'Choose Center Manager': 'Choose Center Manager',
-        'Submit': 'Submit',
+        Submit: 'Submit',
         'Enter New Member': 'Enter New Member',
         'Enter Non Employee': 'Enter Non Employee',
         'Enter Employees': 'Enter Employees',
+        'Select Range': 'Select Range',
+        'Attendence of First week': 'Attendence of First week',
       },
     },
     ur: {
@@ -60,11 +62,12 @@ i18n.use(initReactI18next).init({
         'Choose City Manager': 'شہر کے منتظم منتخب کریں',
         'Add Attendance': 'حاضری شامل کریں',
         'Choose Center Manager': 'مرکز کے منتظم منتخب کریں',
-        'Submit': 'جمع کرائیں',
+        Submit: 'جمع کرائیں',
         'Enter New Member': 'نئے اراکین درج کریں',
         'Enter Non Employee': 'غیر ملازمین درج کریں',
         'Enter employees': 'ملازمین درج کریں',
-
+        'Select Range': 'محدودہ فیصلہ منتخب کریں',
+        'Attendence of First week': 'پہلے ہفتے کی حاضری',
       },
     },
     de: {

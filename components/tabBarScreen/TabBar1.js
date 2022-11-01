@@ -2,7 +2,7 @@
 import React, {Component} from 'react';
 
 // import { Tab_Home, Tab_MyFilters, Tab_CurrentSales, Tab_SalesClicked, Tab_Profile } from '../../assets/Images';
-import {Tab_Home, Tab_Profile,chart} from '../../assets/images';
+import {Tab_Home, Tab_Profile, chart} from '../../assets/images';
 
 import {
   Alert,
@@ -26,9 +26,7 @@ import AttendanceTableForm from '../../screens/attendance/AttendanceTableForm';
 import Profile from '../../screens/profile/Profile';
 import Home from '../../screens/home/Home';
 import AttendenceChart from '../../screens/charts/AttendenceChart';
-
 const Tab = createBottomTabNavigator();
-
 function MyTabBar({state, descriptors, navigation}) {
   return (
     <View
@@ -55,9 +53,7 @@ function MyTabBar({state, descriptors, navigation}) {
             : options.title !== undefined
             ? options.title
             : route.name;
-
         const isFocused = state.index === index;
-
         const onPress = () => {
           const event = navigation.emit({
             type: 'tabPress',
@@ -68,14 +64,12 @@ function MyTabBar({state, descriptors, navigation}) {
             navigation.navigate(route.name);
           }
         };
-
         const onLongPress = () => {
           navigation.emit({
             type: 'tabLongPress',
             target: route.key,
           });
         };
-
         const getImageName = () => {
           if (route.name === 'Home') {
             return Tab_Home;
@@ -83,15 +77,11 @@ function MyTabBar({state, descriptors, navigation}) {
             return Tab_Profile;
           } else if (route.name === 'Profile') {
             return Tab_Profile;
-          }
-          else if (route.name === 'Chart') {
+          } else if (route.name === 'Chart') {
             return Tab_Home;
           }
-          
         };
-
         var selectedTabBackgroundColor = isFocused ? 'white' : 'white';
-
         return (
           <TouchableOpacity
             accessibilityRole="button"
@@ -135,14 +125,11 @@ function MyTabBar({state, descriptors, navigation}) {
     </View>
   );
 }
-
 export default class TabBarScreen extends React.Component {
   constructor(props) {
     super(props);
-
     this.state = {};
   }
-
   componentDidMount() {
     if (Platform.OS === 'android') {
       BackHandler.addEventListener('hardwareBackPress', () => {
@@ -151,7 +138,6 @@ export default class TabBarScreen extends React.Component {
       });
     }
   }
-
   render() {
     return (
       <SafeAreaView style={styles.container}>
@@ -172,7 +158,7 @@ export default class TabBarScreen extends React.Component {
             component={Profile}
             options={{headerShown: false}}
           />
-             <Tab.Screen
+          <Tab.Screen
             name="Chart"
             component={AttendenceChart}
             options={{headerShown: false}}
@@ -202,8 +188,5 @@ const styles = StyleSheet.create({
   tabIconStyle: {
     height: 22,
     width: 22,
-    // remove transparency from icon image
-      
-
   },
 });

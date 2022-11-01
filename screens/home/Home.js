@@ -7,6 +7,14 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
+import {
+  Appbar,
+  DarkTheme,
+  DefaultTheme,
+  Provider,
+  Surface,
+  ThemeProvider,
+} from 'react-native-paper';
 import React, {useEffect, useState} from 'react';
 import {Tab_MyFilters} from '../../assets/images';
 import moment from 'moment';
@@ -18,13 +26,28 @@ import {useIsFocused} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
 import i18n from '../../services/i18';
 const initI18n = i18n;
-
 import Animated, {
   Layout,
   useAnimatedScrollHandler,
   useSharedValue,
 } from 'react-native-reanimated';
 import {Button} from 'native-base';
+import DropDown from 'react-native-paper-dropdown';
+import SocketIOClient from 'socket.io-client/dist/socket.io.js';
+const languageList = [
+  {
+    label: 'en',
+    value: 'en',
+  },
+  {
+    label: 'ur',
+    value: 'ur',
+  },
+  {
+    label: 'de',
+    value: 'de',
+  },
+];
 const Home = ({navigation}) => {
   const {t, i18n} = useTranslation();
   const scrollOffset = useSharedValue(0);
@@ -39,12 +62,14 @@ const Home = ({navigation}) => {
   const [attendances, setAttendances] = useState([]);
   const [showFilter, setShowFilter] = useState(false);
   const [userRoleName, setUserRoleName] = useState('');
+  const [showDropDown, setShowDropDown] = useState(false);
   const [attendanceFilters, setAttendanceFilters] = useState({
     center: null,
     city: null,
   });
   const [offset, setoffset] = useState(0);
   const [limit, setlimit] = useState(4);
+  const [language, setLanguage] = useState('en');
 
   const getAllAttendencesData = async () => {
     await getAttendance({userRole, offset, limit})
@@ -65,12 +90,23 @@ const Home = ({navigation}) => {
   }, [offset]);
 
   useEffect(() => {
+    const socket = SocketIOClient('http://192.168.18.25:3000', {
+      jsonp: false,
+      transports: ['websocket'],
+    });
+    socket.on('connect', () => {
+      console.log('socket connetcted connected');
+      socket.emit('hello', 'world');
+    });
+    socket.on('connect_error', err => {
+      console.log(err instanceof Error);
+      console.log('err', err.message);
+    });
     AsyncStorageManager.getDataObject('user')
       .then(response => {
         setUserRole(response.center[0]);
         setRole(response.role);
         getCenterNmae(response.center[0]).then(response => {
-          console.log('response of center id', response.data);
         });
       })
       .then(res => {
@@ -82,7 +118,6 @@ const Home = ({navigation}) => {
           setUserRole(response.center[0]);
           setRole(response.role);
           getCenterNmae(response.center[0]).then(response => {
-            console.log('response of center id', response.data.name);
             setUserRoleName(response.data.name);
           });
         })
@@ -91,27 +126,14 @@ const Home = ({navigation}) => {
         });
     }
   }, [isFocused, userRole]);
+  useEffect(() => {
+    i18n.changeLanguage(language);
+  }, [language]);
   return (
     <View style={styles.homeWrapper}>
       <View style={styles.headerBackground}>
         <Text style={styles.headerTextStyle}>{t('All Attendences')}</Text>
       </View>
-      <TouchableOpacity>
-        <Button
-          onPress={() => {
-            i18n.changeLanguage('ur');
-          }}>
-          Urdu
-        </Button>
-      </TouchableOpacity>
-      <TouchableOpacity>
-        <Button
-          onPress={() => {
-            i18n.changeLanguage('en');
-          }}>
-          English
-        </Button>
-      </TouchableOpacity>
       <View>
         <View style={styles.mainFilterIcon}>
           <TouchableOpacity
@@ -120,9 +142,33 @@ const Home = ({navigation}) => {
             <Image source={Tab_MyFilters} style={styles.filterIconImage} />
             <Text style={styles.filterIconText}>{t('filter')}</Text>
           </TouchableOpacity>
+          <Surface style={styles.containerStyle}>
+            <DropDown
+              dropDownContainerMaxHeight={100}
+              dropDownContainerHeight={100}
+              dropDownStyle={{height: 100}}
+              label={'Language'}
+              mode={'outlined'}
+              visible={showDropDown}
+              showDropDown={() => setShowDropDown(true)}
+              onDismiss={() => setShowDropDown(false)}
+              value={language}
+              setValue={setLanguage}
+              list={languageList}
+            />
+          </Surface>
         </View>
         <View>
-          <Text style={styles.userCenter}>{userRoleName}</Text>
+          <Text
+            style={{
+              fontSize: 24,
+              color: '#000',
+              fontWeight: 'bold',
+              textAlign: 'left',
+              marginLeft: 20,
+            }}>
+            {t(userRoleName)}
+          </Text>
         </View>
         <Modal visible={showFilter} transparent={true}>
           <View style={{width: 100, height: 700}}>
@@ -149,14 +195,6 @@ const Home = ({navigation}) => {
                 key={index}
                 layout={Layout.springify()}>
                 <View style={styles.userContainer}>
-                  {/* <View style={styles.userDetail1}>
-                  <Text style={styles.userName}>City:</Text>
-                  <Text style={styles.userEmail}>{item.city.name}</Text>
-                </View> */}
-                  {/* <View style={styles.userDetail}>
-                  <Text style={styles.userName}>Center:</Text>
-                  <Text style={styles.userEmail}>{item?.center.name}</Text>
-                </View> */}
                   <View style={styles.userDetail2}>
                     <Text style={styles.userName}>{t('Dated')}:</Text>
                     <Text style={styles.userEmail}>
@@ -187,11 +225,6 @@ const Home = ({navigation}) => {
                       })}
                     </Text>
                   </View>
-                  {/*
-                <View style={styles.userDetail}>
-                  <Text style={styles.userName}>Non Member:</Text>
-                  <Text style={styles.userEmail}>{item.nonEmployees}</Text>
-                </View> */}
                 </View>
               </Animated.ScrollView>
             </TouchableOpacity>
@@ -199,7 +232,7 @@ const Home = ({navigation}) => {
         />
         <TouchableOpacity onPress={handleNextItems}>
           <View style={styles.designNextButton}>
-            <Text style={{textAlign: 'center'}}>Next</Text>
+            <Text style={{textAlign: 'center'}}>{t('Next')}</Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -209,6 +242,24 @@ const Home = ({navigation}) => {
 export default Home;
 
 const styles = StyleSheet.create({
+  containerStyle: {
+    width: '20%',
+    height: 30,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    marginLeft: 10,
+    marginTop: 1,
+    marginBottom: 12,
+    elevation: 4,
+  },
+  spacerStyle: {
+    marginBottom: 15,
+  },
+  safeContainerStyle: {
+    flex: 1,
+    margin: 20,
+    justifyContent: 'center',
+  },
   homeWrapper: {
     flex: 1,
     backgroundColor: '#F8FAF8',
@@ -268,11 +319,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
   },
-  userCenter: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
+
   userDetail: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -377,3 +424,23 @@ const styles = StyleSheet.create({
     bottom: -12,
   },
 });
+
+{
+  /* <View style={styles.userDetail1}>
+                  <Text style={styles.userName}>City:</Text>
+                  <Text style={styles.userEmail}>{item.city.name}</Text>
+                </View> */
+}
+{
+  /* <View style={styles.userDetail}>
+                  <Text style={styles.userName}>Center:</Text>
+                  <Text style={styles.userEmail}>{item?.center.name}</Text>
+                </View> */
+}
+{
+  /*
+                <View style={styles.userDetail}>
+                  <Text style={styles.userName}>Non Member:</Text>
+                  <Text style={styles.userEmail}>{item.nonEmployees}</Text>
+                </View> */
+}
