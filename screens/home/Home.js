@@ -18,9 +18,15 @@ import {
 import React, {useEffect, useState} from 'react';
 import {Tab_MyFilters} from '../../assets/images';
 import moment from 'moment';
-import {getAttendance, getCenterNmae} from '../../services/attendaceService';
+import {
+  getAttendance,
+  getCenterNmae,
+  mySocket,
+} from '../../services/attendaceService';
 import Filteration from '../attendance/Filteration';
 import {Dimensions} from 'react-native';
+import {List, MD3Colors} from 'react-native-paper';
+import {Notification, Notifications} from 'react-native-notifications';
 import AsyncStorageManager from '../../Managers/AsyncStorageManager';
 import {useIsFocused} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
@@ -63,6 +69,7 @@ const Home = ({navigation}) => {
   const [showFilter, setShowFilter] = useState(false);
   const [userRoleName, setUserRoleName] = useState('');
   const [showDropDown, setShowDropDown] = useState(false);
+
   const [attendanceFilters, setAttendanceFilters] = useState({
     center: null,
     city: null,
@@ -96,8 +103,13 @@ const Home = ({navigation}) => {
     });
     socket.on('connect', () => {
       console.log('socket connetcted connected');
-      socket.emit('hello', 'world');
     });
+
+    socket.on('notification', data => {
+      console.log('socket notification', data);
+      alert(data);
+    });
+
     socket.on('connect_error', err => {
       console.log(err instanceof Error);
       console.log('err', err.message);
@@ -106,8 +118,7 @@ const Home = ({navigation}) => {
       .then(response => {
         setUserRole(response.center[0]);
         setRole(response.role);
-        getCenterNmae(response.center[0]).then(response => {
-        });
+        getCenterNmae(response.center[0]).then(response => {});
       })
       .then(res => {
         getAllAttendencesData();
@@ -125,6 +136,15 @@ const Home = ({navigation}) => {
           getAllAttendencesData();
         });
     }
+    // console.log('--------------------------------------------');
+    // Notifications.events().registerRemoteNotificationsRegistered(event => {
+    //   console.log('Device Token Received', event);
+    // });
+
+    // get the device token
+    // Notifications.getDeviceToken().then(token => {
+    //   console.log('Device Token: ', token);
+    // });
   }, [isFocused, userRole]);
   useEffect(() => {
     i18n.changeLanguage(language);
@@ -133,6 +153,20 @@ const Home = ({navigation}) => {
     <View style={styles.homeWrapper}>
       <View style={styles.headerBackground}>
         <Text style={styles.headerTextStyle}>{t('All Attendences')}</Text>
+        <TouchableOpacity
+          onPress={() => {
+            Notifications.postLocalNotification({
+              body: 'Local notification!',
+              title: 'Local Notification Title',
+              sound: 'chime.aiff',
+              silent: false,
+              category: 'SOME_CATEGORY',
+              userInfo: {},
+              fireDate: new Date(),
+            });
+          }}>
+          <Text>Notification</Text>
+        </TouchableOpacity>
       </View>
       <View>
         <View style={styles.mainFilterIcon}>

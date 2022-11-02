@@ -14,11 +14,17 @@ import {
 import {StyleSheet} from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {Dropdown, MultiSelect} from 'react-native-element-dropdown';
-import {getCities, getCentersByCity} from '../../services/AuthService';
+import {
+  getCities,
+  getCentersByCity,
+  mySocket,
+} from '../../services/AuthService';
 import AsyncStorageManager from '../../Managers/AsyncStorageManager';
 import {useIsFocused} from '@react-navigation/native';
+import SocketIOClient from 'socket.io-client/dist/socket.io.js';
 import {useTranslation} from 'react-i18next';
 import i18n from '../../services/i18';
+import {Socket} from 'socket.io-client';
 const initI18n = i18n;
 
 const AttendanceTableForm = ({navigation}) => {
@@ -77,7 +83,6 @@ const AttendanceTableForm = ({navigation}) => {
     setSelectCityManager(e);
   };
   const submitLogin = async () => {
-    console.log('submitLogin');
     const data = {
       newMembers: member,
       employees: employee,
@@ -88,7 +93,7 @@ const AttendanceTableForm = ({navigation}) => {
       cityManagers: selectCityManager,
       user: userId,
     };
-    console.log('data', data);
+    mySocket(data);
     createAttendance(data).then(response => {
       navigation.navigate('Home');
     });
@@ -430,14 +435,13 @@ const styles = StyleSheet.create({
   },
 });
 
-
- // setCenterManagers(
-        //   response.data.centerManagers.map(item => {
-        //     return {...centerManagers, label: item, value: item};
-        //   }),
-        // // );
-        // setCityManagers(
-        //   response.data.cityManagers.map(item => {
-        //     return {...cityManagers, label: item, value: item};
-        //   }),
-        // );
+// setCenterManagers(
+//   response.data.centerManagers.map(item => {
+//     return {...centerManagers, label: item, value: item};
+//   }),
+// // );
+// setCityManagers(
+//   response.data.cityManagers.map(item => {
+//     return {...cityManagers, label: item, value: item};
+//   }),
+// );

@@ -36,6 +36,7 @@ i18n.use(initReactI18next).init({
         'Enter Employees': 'Enter Employees',
         'Select Range': 'Select Range',
         'Attendence of First week': 'Attendence of First week',
+        'Logout': 'Logout',
       },
     },
     ur: {
@@ -68,6 +69,7 @@ i18n.use(initReactI18next).init({
         'Enter employees': 'ملازمین درج کریں',
         'Select Range': 'محدودہ فیصلہ منتخب کریں',
         'Attendence of First week': 'پہلے ہفتے کی حاضری',
+        'Logout': 'لاگ آوٹ',
       },
     },
     de: {

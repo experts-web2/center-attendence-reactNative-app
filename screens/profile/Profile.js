@@ -10,11 +10,19 @@ import {
   FlatList,
   Dimensions,
 } from 'react-native';
+// import notifee from '@notifee/react-native';
 import {getAttendance} from '../../services/attendaceService';
+import {Notification, Notifications} from 'react-native-notifications';
 import moment from 'moment';
 import {useEffect, useState} from 'react';
 import AsyncStorageManager from '../../Managers/AsyncStorageManager';
 import {ProgressChart} from 'react-native-chart-kit';
+import {useIsFocused} from '@react-navigation/native';
+import {useTranslation} from 'react-i18next';
+import i18n from '../../services/i18';
+
+const initI18n = i18n;
+
 const data = {
   labels: ['Attendences', 'Absent', 'Total '],
   data: [0.4, 0.6, 0.8],
@@ -32,6 +40,8 @@ const chartConfig = {
 import React from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 const Profile = ({navigation}) => {
+  const isFocused = useIsFocused();
+  const {t, i18n} = useTranslation();
   const [attendances, setAttendances] = useState([]);
   const [attendanceFilters, setAttendanceFilters] = useState({
     city: null,
@@ -50,7 +60,7 @@ const Profile = ({navigation}) => {
       console.log('res', res);
     });
     getAllAttendencesData();
-  }, []);
+  }, [isFocused]);
   const LogOutUser = async () => {
     await AsyncStorageManager.clearAllAsyncData();
     navigation.navigate('Login');
