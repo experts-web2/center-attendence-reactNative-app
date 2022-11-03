@@ -25,6 +25,7 @@ export const TabBarScreenOptions = [
     component: AttendenceChart,
     iconName: 'chart-bar',
   },
+  
 ];
 
 export const TabBarScreenStyleOptions = {

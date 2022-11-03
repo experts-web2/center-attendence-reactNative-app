@@ -119,21 +119,21 @@ const Profile = ({navigation}) => {
                     <View style={styles.userDetail}>
                       <Text style={styles.userName}>City Manager:</Text>
                       <Text style={styles.userEmail}>
-                        {item.cityManager.map((items, index) => {
+                        {/* {item.cityManager.map((items, index) => {
                           return index === item.cityManager.length - 1
                             ? items
                             : items + ',';
-                        })}
+                        })} */}
                       </Text>
                     </View>
                     <View style={styles.userDetail}>
                       <Text style={styles.userName}>Center Manager:</Text>
                       <Text style={styles.userEmail}>
-                        {item.centerManager.map((items, index) => {
+                        {/* {item.centerManager.map((items, index) => {
                           return index === item.centerManager.length - 1
                             ? items
                             : items + ',';
-                        })}
+                        })} */}
                       </Text>
                     </View>
                     <View style={styles.userDetail}>

@@ -10,9 +10,11 @@ import Users from '../screens/users/Users';
 import AttendenceChart from '../screens/charts/AttendenceChart';
 import UpdateFormScreen from '../components/allScreens/UpdateFormScreen';
 import AttendanceTableForm from '../screens/attendance/AttendanceTableForm';
+import NotificationData from './../components/notifications/NotificationData';
 
 
 export const AllScreens = [
+
   {
     name: 'Login',
     screen: 'Login',
@@ -114,6 +116,25 @@ export const AllScreens = [
       headerShown: false,
     },
   },
+  {
+    name: 'notificationData',
+    screen: 'notificationData',
+    component: NotificationData,
+    options: {
+      title: 'notificationData',
+      headerShown: false,
+    },
+  },
+  {
+    name: 'notification',
+    screen: 'notification',
+    component: NotificationData,
+    options: {
+      title: 'notification',
+      headerShown: false,
+    },
+  },
+  
  
 ];
 

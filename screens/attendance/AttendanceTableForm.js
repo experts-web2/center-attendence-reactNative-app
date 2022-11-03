@@ -53,18 +53,11 @@ const AttendanceTableForm = ({navigation}) => {
   };
 
   const handleCenterAndCityManagers = async (centerId, cityId) => {
+    console.log('centerId', centerId);
     await getUserRolesByCityCenter(centerId, cityId)
       .then(response => {
-        setCenterManagers(
-          response.data.centerManagers.map(item => {
-            return {...centerManagers, label: item, value: item};
-          }),
-        );
-        setCityManagers(
-          response.data.cityManagers.map(item => {
-            return {...cityManagers, label: item, value: item};
-          }),
-        );
+        setCityManagers(response.data.cityManagers);
+        setCenterManagers(response.data.centerManagers);
       })
       .catch(err => console.log(err));
   };
@@ -87,8 +80,8 @@ const AttendanceTableForm = ({navigation}) => {
       newMembers: member,
       employees: employee,
       nonEmployees: nonMember,
-      city: city._id,
-      center: center._id,
+      city: userRole === '630e22da936b4c901f78dc2d' ? city._id : city,
+      center: userRole === '630e22da936b4c901f78dc2d' ? center._id : center,
       centerManagers: selectCenterManager,
       cityManagers: selectCityManager,
       user: userId,
@@ -99,20 +92,24 @@ const AttendanceTableForm = ({navigation}) => {
     });
   };
   useEffect(() => {
+    console.log('called');
     AsyncStorageManager.getDataObject('user').then(
       response => {
         setUserRole(response.role);
         setUserId(response._id);
         if (userRole !== '630e22da936b4c901f78dc2d') {
           handleCenterAndCityManagers(response.center[0], response.city[0]);
+          setCenter(response.center[0]);
+          setCity(response.city[0]);
         }
         if (isFocused) {
           AsyncStorageManager.getDataObject('user').then(response => {
-            console.log('response', response.role);
             setUserRole(response.role);
             setUserId(response._id);
             if (userRole !== '630e22da936b4c901f78dc2d') {
               handleCenterAndCityManagers(response.center[0], response.city[0]);
+              setCenter(response.center[0]);
+              setCity(response.city[0]);
             }
           });
         }
@@ -153,6 +150,8 @@ const AttendanceTableForm = ({navigation}) => {
                   onFocus={() => setIsFocus(true)}
                   onBlur={() => setIsFocus(false)}
                   onChange={e => handleCity(e)}
+                  // close the dropdown when select an item
+                  closeOnSelect={true}
                 />
               </View>
             ) : null}
@@ -184,7 +183,6 @@ const AttendanceTableForm = ({navigation}) => {
               <MultiSelect
                 style={[styles.dropdown]}
                 placeholderStyle={styles.placeholderStyle}
-                selectedTe
                 iconStyle={styles.iconStyle}
                 data={cityManagers}
                 maxHeight={300}
@@ -211,10 +209,17 @@ const AttendanceTableForm = ({navigation}) => {
                 labelField="label"
                 valueField="value"
                 placeholder={!isFocus ? t('Choose Center Manager') : '...'}
+                // auto cose dropdown when select an item
+                closeOnSelect={true}
                 value={selectCenterManager}
                 onFocus={() => setIsFocus(true)}
                 onBlur={() => setIsFocus(false)}
-                onChange={e => setSelectCenterManager(e)}
+                onChange={item => {
+                  console.log('---------------------------', isFocus);
+                  setSelectCenterManager(item);
+                  setIsFocus(false);
+                  console.log('---------------------------', isFocus);
+                }}
               />
             </View>
 

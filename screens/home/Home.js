@@ -7,53 +7,28 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
-import {
-  Appbar,
-  DarkTheme,
-  DefaultTheme,
-  Provider,
-  Surface,
-  ThemeProvider,
-} from 'react-native-paper';
+import {Surface} from 'react-native-paper';
 import React, {useEffect, useState} from 'react';
 import {Tab_MyFilters} from '../../assets/images';
 import moment from 'moment';
-import {
-  getAttendance,
-  getCenterNmae,
-  mySocket,
-} from '../../services/attendaceService';
+import {getAttendance, getCenterNmae} from '../../services/attendaceService';
 import Filteration from '../attendance/Filteration';
 import {Dimensions} from 'react-native';
-import {List, MD3Colors} from 'react-native-paper';
-import {Notification, Notifications} from 'react-native-notifications';
 import AsyncStorageManager from '../../Managers/AsyncStorageManager';
+import PushNotification from 'react-native-push-notification';
 import {useIsFocused} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
 import i18n from '../../services/i18';
-const initI18n = i18n;
+
 import Animated, {
   Layout,
   useAnimatedScrollHandler,
   useSharedValue,
 } from 'react-native-reanimated';
-import {Button} from 'native-base';
 import DropDown from 'react-native-paper-dropdown';
 import SocketIOClient from 'socket.io-client/dist/socket.io.js';
-const languageList = [
-  {
-    label: 'en',
-    value: 'en',
-  },
-  {
-    label: 'ur',
-    value: 'ur',
-  },
-  {
-    label: 'de',
-    value: 'de',
-  },
-];
+import {languageList} from './../../constants/applicationStaticData';
+
 const Home = ({navigation}) => {
   const {t, i18n} = useTranslation();
   const scrollOffset = useSharedValue(0);
@@ -69,7 +44,6 @@ const Home = ({navigation}) => {
   const [showFilter, setShowFilter] = useState(false);
   const [userRoleName, setUserRoleName] = useState('');
   const [showDropDown, setShowDropDown] = useState(false);
-
   const [attendanceFilters, setAttendanceFilters] = useState({
     center: null,
     city: null,
@@ -85,9 +59,11 @@ const Home = ({navigation}) => {
       })
       .catch(err => console.log(err));
   };
+
   const handleNextItems = async () => {
     setoffset(offset + 1);
   };
+
   useEffect(() => {
     getAttendance({userRole, offset})
       .then(response => {
@@ -96,22 +72,27 @@ const Home = ({navigation}) => {
       .catch(err => console.log(err));
   }, [offset]);
 
+  const socket = SocketIOClient('http://192.168.18.25:3000', {
+    jsonp: false,
+    transports: ['websocket'],
+  });
+  socket.on('connect', () => {
+    console.log('socket connetcted connected');
+  });
+
   useEffect(() => {
-    const socket = SocketIOClient('http://192.168.18.25:3000', {
-      jsonp: false,
-      transports: ['websocket'],
-    });
-    socket.on('connect', () => {
-      console.log('socket connetcted connected');
-    });
-
-    socket.on('notification', data => {
-      console.log('socket notification', data);
-      alert(data);
-    });
-
+    if (role === '630e22da936b4c901f78dc2d') {
+      socket.on('notification', data => {
+        PushNotification.localNotification({
+          playSound: true,
+          channelId: 'channel-id',
+          title: 'New Attendance',
+          message: 'New Attendance has been added',
+          data: data,
+        });
+      });
+    }
     socket.on('connect_error', err => {
-      console.log(err instanceof Error);
       console.log('err', err.message);
     });
     AsyncStorageManager.getDataObject('user')
@@ -135,38 +116,41 @@ const Home = ({navigation}) => {
         .then(res => {
           getAllAttendencesData();
         });
+      if (role === '630e22da936b4c901f78dc2d') {
+        PushNotification.configure({
+          onRegister: function (token) {
+            console.log('TOKEN:', token);
+          },
+          onNotification: function (notification) {
+            console.log('LOCAL NOTIFICATION ==>', notification);
+            navigation.navigate('notification',{data:notification.data});
+          },
+          requestPermissions: Platform.OS === 'ios',
+        });
+      }
     }
-    // console.log('--------------------------------------------');
-    // Notifications.events().registerRemoteNotificationsRegistered(event => {
-    //   console.log('Device Token Received', event);
-    // });
-
-    // get the device token
-    // Notifications.getDeviceToken().then(token => {
-    //   console.log('Device Token: ', token);
-    // });
   }, [isFocused, userRole]);
   useEffect(() => {
     i18n.changeLanguage(language);
   }, [language]);
+
+  if (role === '630e22da936b4c901f78dc2d') {
+    PushNotification.createChannel(
+      {
+        channelId: 'channel-id',
+        channelName: 'My channel',
+        channelDescription: 'A channel to categorise your notifications',
+        playSound: true,
+        soundName: 'default',
+        vibrate: true,
+      },
+      created => console.log(`createChannel returned '${created}'`),
+    );
+  }
   return (
     <View style={styles.homeWrapper}>
       <View style={styles.headerBackground}>
         <Text style={styles.headerTextStyle}>{t('All Attendences')}</Text>
-        <TouchableOpacity
-          onPress={() => {
-            Notifications.postLocalNotification({
-              body: 'Local notification!',
-              title: 'Local Notification Title',
-              sound: 'chime.aiff',
-              silent: false,
-              category: 'SOME_CATEGORY',
-              userInfo: {},
-              fireDate: new Date(),
-            });
-          }}>
-          <Text>Notification</Text>
-        </TouchableOpacity>
       </View>
       <View>
         <View style={styles.mainFilterIcon}>
@@ -242,8 +226,8 @@ const Home = ({navigation}) => {
                   <View style={styles.userDetail}>
                     <Text style={styles.userName}>{t('City Manager')}:</Text>
                     <Text style={styles.userEmail}>
-                      {item.cityManager.map((items, index) => {
-                        return index === item.cityManager.length - 1
+                      {item?.cityManager?.map((items, index) => {
+                        return index === item?.cityManager?.length - 1
                           ? items
                           : items + ',';
                       })}
@@ -252,8 +236,8 @@ const Home = ({navigation}) => {
                   <View style={styles.userDetail}>
                     <Text style={styles.userName}>{t('Center Manager')}:</Text>
                     <Text style={styles.userEmail}>
-                      {item.centerManager?.map((items, index) => {
-                        return index === item.centerManager.length - 1
+                      {item?.centerManager?.map((items, index) => {
+                        return index === item?.centerManager?.length - 1
                           ? items
                           : items + ',';
                       })}

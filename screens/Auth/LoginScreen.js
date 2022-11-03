@@ -21,8 +21,9 @@ import {useIsFocused} from '@react-navigation/native';
 const ValidationSchema = yup.object().shape({
   email: yup
     .string()
-    .email('Please enter valid email')
-    .required('Email is required'),
+    .required('text is required')
+    .max(50, 'text is too long')
+    .min(3, 'text is too short'),
   password: yup
     .string()
     .min(4, ({min}) => `Password must be at least ${min} characters`)
@@ -68,7 +69,6 @@ const LoginScreen = () => {
     if (isFocused) {
       AsyncStorageManager.clearAllAsyncData();
     }
-    console.log('user data');
   }, [isFocused]);
 
   return (
@@ -90,7 +90,6 @@ const LoginScreen = () => {
             handleSubmit,
           }) => {
             const {email, password} = values;
-            console.log('values', touched.email);
             return (
               <SafeAreaView
                 style={[styles.loginMainContainer, styles.boxShadowinLogin]}>
@@ -103,13 +102,13 @@ const LoginScreen = () => {
                   />
                 </View>
                 <View style={styles.signInInputWrapper}>
-                  <Text style={styles.textInputLabel}>Email</Text>
+                  <Text style={styles.textInputLabel}>Enter UserName</Text>
                   <TouchableOpacity>
                     <TextInput
                       value={email}
                       onChangeText={handleChange('email')}
                       onBlur={handleBlur('email')}
-                      placeholder="Enter Email"
+                      placeholder="Enter UserName or Email"
                       autoComplete="email"
                       style={styles.textInputText}
                     />
@@ -149,7 +148,6 @@ const LoginScreen = () => {
             );
           }}
         </Formik>
-
         <View style={styles.userFlexDirection}>
           <View style={styles.dontHaveAccount}>
             <Text style={styles.dontHaveAccountText}>
@@ -157,7 +155,7 @@ const LoginScreen = () => {
             </Text>
             <TouchableOpacity
               onPress={() => console.log(navigation.navigate('Register'))}>
-              <Text style={styles.dontHaveAccountButton}>signUp</Text>
+              <Text style={styles.dontHaveAccountButton}>SignUp</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.forgetBtn}>
