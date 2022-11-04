@@ -10,9 +10,11 @@ import {
 import {Surface} from 'react-native-paper';
 import React, {useEffect, useState} from 'react';
 import {Tab_MyFilters} from '../../assets/images';
+import io from "socket.io-client";
 import moment from 'moment';
 import {getAttendance, getCenterNmae} from '../../services/attendaceService';
 import Filteration from '../attendance/Filteration';
+import { mySocket } from '../../services/AuthService';
 import {Dimensions} from 'react-native';
 import AsyncStorageManager from '../../Managers/AsyncStorageManager';
 import PushNotification from 'react-native-push-notification';
@@ -30,6 +32,7 @@ import SocketIOClient from 'socket.io-client/dist/socket.io.js';
 import {languageList} from './../../constants/applicationStaticData';
 
 const Home = ({navigation}) => {
+  const [socketConnection, setSocketConnection] = useState(null);
   const {t, i18n} = useTranslation();
   const scrollOffset = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler({
@@ -65,6 +68,7 @@ const Home = ({navigation}) => {
   };
 
   useEffect(() => {
+
     getAttendance({userRole, offset})
       .then(response => {
         setAttendances(response.data);
@@ -72,29 +76,30 @@ const Home = ({navigation}) => {
       .catch(err => console.log(err));
   }, [offset]);
 
-  const socket = SocketIOClient('http://192.168.18.25:3000', {
-    jsonp: false,
-    transports: ['websocket'],
-  });
-  socket.on('connect', () => {
-    console.log('socket connetcted connected');
-  });
+ 
 
   useEffect(() => {
-    if (role === '630e22da936b4c901f78dc2d') {
-      socket.on('notification', data => {
-        PushNotification.localNotification({
-          playSound: true,
-          channelId: 'channel-id',
-          title: 'New Attendance',
-          message: 'New Attendance has been added',
-          data: data,
-        });
-      });
-    }
-    socket.on('connect_error', err => {
-      console.log('err', err.message);
+
+    const socket = SocketIOClient('http://192.168.18.25:3000', {
+      jsonp: false,
+      transports: ['websocket'],
     });
+    socket.on('connect', () => {
+      console.log('socket connetcted connected');
+    });
+
+
+    socket.on('notification', data => {
+      console.log('data of sockets is given ', data);
+      PushNotification.localNotification({
+        playSound: true,
+        channelId: 'channel-id',
+        title: 'New Attendance',
+        message: 'New Attendance has been added',
+        data: data,
+      });
+    });
+
     AsyncStorageManager.getDataObject('user')
       .then(response => {
         setUserRole(response.center[0]);
@@ -116,18 +121,17 @@ const Home = ({navigation}) => {
         .then(res => {
           getAllAttendencesData();
         });
-      if (role === '630e22da936b4c901f78dc2d') {
-        PushNotification.configure({
-          onRegister: function (token) {
-            console.log('TOKEN:', token);
-          },
-          onNotification: function (notification) {
-            console.log('LOCAL NOTIFICATION ==>', notification);
-            navigation.navigate('notification',{data:notification.data});
-          },
-          requestPermissions: Platform.OS === 'ios',
-        });
-      }
+
+      PushNotification.configure({
+        onRegister: function (token) {
+          console.log('TOKEN:', token);
+        },
+        onNotification: function (notification) {
+          console.log('LOCAL NOTIFICATION ==>', notification);
+          navigation.navigate('notification', {data: notification.data});
+        },
+        requestPermissions: Platform.OS === 'ios',
+      });
     }
   }, [isFocused, userRole]);
   useEffect(() => {

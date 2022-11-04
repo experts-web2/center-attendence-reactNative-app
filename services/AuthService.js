@@ -1,6 +1,6 @@
 import {axiosInstance} from './axios';
 import SocketIOClient from 'socket.io-client/dist/socket.io.js';
-
+import io from "socket.io-client"
 const url = '/user/login';
 export const login = data => {
   return new Promise((resolve, reject) => {
@@ -70,5 +70,9 @@ export const mySocket = data => {
     transports: ['websocket'],
   });
   socket.emit('attendance', data);
-  console.log('end of socket');
 };
+
+
+
+
+

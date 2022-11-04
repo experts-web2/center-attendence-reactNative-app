@@ -18,6 +18,7 @@ import {login} from '../../services/AuthService';
 import {Formik} from 'formik';
 import * as yup from 'yup';
 import {useIsFocused} from '@react-navigation/native';
+import SocketIOClient from 'socket.io-client/dist/socket.io.js';
 const ValidationSchema = yup.object().shape({
   email: yup
     .string()
@@ -44,6 +45,16 @@ const LoginScreen = () => {
           console.log('response', response?.data.newUser);
           AsyncStorageManager.storeDataObject('user', response?.data.newUser);
           AsyncStorageManager.storeDataObject('token', response?.data.token);
+          const socket = SocketIOClient(`http://192.168.18.25:3000?token=${response?.data.newUser._id}`, {
+            jsonp: false,
+            transports: ['websocket'],
+          });
+          socket.on('connect', () => {
+            console.log('socket connection established');
+          });
+          socket.on('connect_error', err => {
+            console.log('err', err.message);
+          });
           ToastAndroid.showWithGravity(
             JSON.stringify('Login Successfully'),
             ToastAndroid.SHORT,

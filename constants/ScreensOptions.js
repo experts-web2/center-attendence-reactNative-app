@@ -1,4 +1,4 @@
-import TabBar1 from '../components/tabBarScreen/TabBar1'
+import TabBar1 from '../components/tabBarScreen/TabBar1';
 import TabBar from '../components/tabBarScreen/TabBar';
 import ChangePassword from '../screens/Auth/ChangePassword';
 import ForgetPassword from '../screens/Auth/ForgetPassword';
@@ -12,9 +12,7 @@ import UpdateFormScreen from '../components/allScreens/UpdateFormScreen';
 import AttendanceTableForm from '../screens/attendance/AttendanceTableForm';
 import NotificationData from './../components/notifications/NotificationData';
 
-
 export const AllScreens = [
-
   {
     name: 'Login',
     screen: 'Login',
@@ -96,7 +94,6 @@ export const AllScreens = [
       title: 'Chart',
       headerShown: false,
     },
-   
   },
   {
     name: 'UpdateAttendence',
@@ -134,7 +131,4 @@ export const AllScreens = [
       headerShown: false,
     },
   },
-  
- 
 ];
-
