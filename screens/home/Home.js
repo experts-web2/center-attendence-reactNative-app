@@ -10,29 +10,24 @@ import {
 import {Surface} from 'react-native-paper';
 import React, {useEffect, useState} from 'react';
 import {Tab_MyFilters} from '../../assets/images';
-import io from "socket.io-client";
 import moment from 'moment';
 import {getAttendance, getCenterNmae} from '../../services/attendaceService';
+import messaging from '@react-native-firebase/messaging';
 import Filteration from '../attendance/Filteration';
-import { mySocket } from '../../services/AuthService';
 import {Dimensions} from 'react-native';
 import AsyncStorageManager from '../../Managers/AsyncStorageManager';
-import PushNotification from 'react-native-push-notification';
 import {useIsFocused} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
-import i18n from '../../services/i18';
-
 import Animated, {
   Layout,
   useAnimatedScrollHandler,
   useSharedValue,
 } from 'react-native-reanimated';
 import DropDown from 'react-native-paper-dropdown';
-import SocketIOClient from 'socket.io-client/dist/socket.io.js';
+
 import {languageList} from './../../constants/applicationStaticData';
 
 const Home = ({navigation}) => {
-  const [socketConnection, setSocketConnection] = useState(null);
   const {t, i18n} = useTranslation();
   const scrollOffset = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler({
@@ -68,7 +63,6 @@ const Home = ({navigation}) => {
   };
 
   useEffect(() => {
-
     getAttendance({userRole, offset})
       .then(response => {
         setAttendances(response.data);
@@ -76,29 +70,19 @@ const Home = ({navigation}) => {
       .catch(err => console.log(err));
   }, [offset]);
 
- 
-
   useEffect(() => {
-
-    const socket = SocketIOClient('http://192.168.18.25:3000', {
-      jsonp: false,
-      transports: ['websocket'],
+   
+    messaging().setBackgroundMessageHandler(async remoteMessage => {
+      console.log('Message handled in the background!', remoteMessage);
     });
-    socket.on('connect', () => {
-      console.log('socket connetcted connected');
-    });
-
-
-    socket.on('notification', data => {
-      console.log('data of sockets is given ', data);
-      PushNotification.localNotification({
-        playSound: true,
-        channelId: 'channel-id',
-        title: 'New Attendance',
-        message: 'New Attendance has been added',
-        data: data,
+    messaging()
+      .getInitialNotification()
+      .then(remoteMessage => {
+        console.log(
+          'Notification caused app to open from quit state:',
+          remoteMessage,
+        );
       });
-    });
 
     AsyncStorageManager.getDataObject('user')
       .then(response => {
@@ -121,36 +105,12 @@ const Home = ({navigation}) => {
         .then(res => {
           getAllAttendencesData();
         });
-
-      PushNotification.configure({
-        onRegister: function (token) {
-          console.log('TOKEN:', token);
-        },
-        onNotification: function (notification) {
-          console.log('LOCAL NOTIFICATION ==>', notification);
-          navigation.navigate('notification', {data: notification.data});
-        },
-        requestPermissions: Platform.OS === 'ios',
-      });
     }
   }, [isFocused, userRole]);
   useEffect(() => {
     i18n.changeLanguage(language);
   }, [language]);
 
-  if (role === '630e22da936b4c901f78dc2d') {
-    PushNotification.createChannel(
-      {
-        channelId: 'channel-id',
-        channelName: 'My channel',
-        channelDescription: 'A channel to categorise your notifications',
-        playSound: true,
-        soundName: 'default',
-        vibrate: true,
-      },
-      created => console.log(`createChannel returned '${created}'`),
-    );
-  }
   return (
     <View style={styles.homeWrapper}>
       <View style={styles.headerBackground}>
@@ -466,3 +426,48 @@ const styles = StyleSheet.create({
                   <Text style={styles.userEmail}>{item.nonEmployees}</Text>
                 </View> */
 }
+
+// const socket = SocketIOClient('http://192.168.18.25:3000', {
+//   jsonp: false,
+//   transports: ['websocket'],
+// });
+// socket.on('connect', () => {
+//   console.log('socket connetcted connected');
+// });
+
+// socket.on('notification', data => {
+//   console.log('data of sockets is given ', data);
+//   PushNotification.localNotification({
+//     playSound: true,
+//     channelId: 'channel-id',
+//     title: 'New Attendance',
+//     message: 'New Attendance has been added',
+//     data: data,
+//   });
+// });
+// PushNotification.configure({
+//   onRegister: function (token) {
+//     console.log('TOKEN:', token);
+//   },
+//   onNotification: function (notification) {
+//     console.log('LOCAL NOTIFICATION ==>', notification);
+//     navigation.navigate('notification', {data: notification.data});
+//   },
+//   requestPermissions: Platform.OS === 'ios',
+// });
+// if (role === '630e22da936b4c901f78dc2d') {
+//   PushNotification.createChannel(
+//     {
+//       channelId: 'channel-id',
+//       channelName: 'My channel',
+//       channelDescription: 'A channel to categorise your notifications',
+//       playSound: true,
+//       soundName: 'default',
+//       vibrate: true,
+//     },
+//     created => console.log(`createChannel returned '${created}'`),
+//   );
+// }
+// import io from 'socket.io-client';
+// import {mySocket} from '../../services/AuthService';
+// import SocketIOClient from 'socket.io-client/dist/socket.io.js';
