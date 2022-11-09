@@ -16,6 +16,8 @@ import messaging from '@react-native-firebase/messaging';
 import Filteration from '../attendance/Filteration';
 import {Dimensions} from 'react-native';
 import AsyncStorageManager from '../../Managers/AsyncStorageManager';
+import {deviceTokenAndAuthorization} from '../../utils/notificatios';
+import { updateUserInfo } from '../../services/AuthService';
 import {useIsFocused} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
 import Animated, {
@@ -42,6 +44,7 @@ const Home = ({navigation}) => {
   const [showFilter, setShowFilter] = useState(false);
   const [userRoleName, setUserRoleName] = useState('');
   const [showDropDown, setShowDropDown] = useState(false);
+  const [userId,setUserId] = useState('');
   const [attendanceFilters, setAttendanceFilters] = useState({
     center: null,
     city: null,
@@ -62,10 +65,16 @@ const Home = ({navigation}) => {
     setoffset(offset + 1);
   };
 
+const setUserToken=async()=>{
+  const userData=await updateUserInfo(userId,await messaging().getToken());
+  console.log("userdata called",userData);
+}
+
   useEffect(() => {
     getAttendance({userRole, offset})
       .then(response => {
         setAttendances(response.data);
+        setUserToken();
       })
       .catch(err => console.log(err));
   }, [offset]);
@@ -88,22 +97,29 @@ const Home = ({navigation}) => {
       .then(response => {
         setUserRole(response.center[0]);
         setRole(response.role);
+        console.log('userRole', response._id);
+        setUserId(response._id);
         getCenterNmae(response.center[0]).then(response => {});
       })
       .then(res => {
         getAllAttendencesData();
+        setUserToken();
+        
       });
     if (isFocused) {
       AsyncStorageManager.getDataObject('user')
         .then(response => {
           setUserRole(response.center[0]);
           setRole(response.role);
+          setUserId(response._id);
+          console.log('userRole', response._id);
           getCenterNmae(response.center[0]).then(response => {
             setUserRoleName(response.data.name);
           });
         })
         .then(res => {
           getAllAttendencesData();
+          setUserToken();
         });
     }
   }, [isFocused, userRole]);

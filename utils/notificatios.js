@@ -10,6 +10,7 @@ export const deviceTokenAndAuthorization = async () => {
     messaging.AuthorizationStatus.PROVISIONAL;
   if (authPermission && isEnabled) {
     console.log('Permission Granted');
+    return authPermission
   } else {
     console.log('Permission Denied');
   }

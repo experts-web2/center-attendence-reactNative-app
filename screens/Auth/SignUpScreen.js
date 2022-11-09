@@ -49,9 +49,10 @@ const SignUpScreen = () => {
     console.log('called');
     createUser(data)
       .then(res => {
+        console.log('res of register',res);
         if (res.data === true) {
           ToastAndroid.showWithGravity(
-            JSON.stringify('Login Successfully'),
+            JSON.stringify('SignUp Successfully'),
             ToastAndroid.SHORT,
             ToastAndroid.CENTER,
           );

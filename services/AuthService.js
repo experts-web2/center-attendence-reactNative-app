@@ -72,6 +72,18 @@ export const mySocket = data => {
   socket.emit('attendance', data);
 };
 
+export const updateUserInfo =(id, deviceToken) => {
+  console.log('called id and fcm token',id);
+  console.log('called id and fcm token',deviceToken);
+  const url = `/user/${id}`;
+  return new Promise((resolve, reject) => {
+    axiosInstance
+      .put(url, deviceToken)
+      .then(response => resolve(response))
+      .catch(err => reject(err));
+  });
+}
+
 
 
 

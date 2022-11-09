@@ -86,7 +86,6 @@ const AttendanceTableForm = ({navigation}) => {
       cityManagers: selectCityManager,
       user: userId,
     };
-    mySocket(data);
     createAttendance(data).then(response => {
       navigation.navigate('Home');
     });

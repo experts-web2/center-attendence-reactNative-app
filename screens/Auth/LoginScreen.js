@@ -16,20 +16,8 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import AsyncStorageManager from '../../Managers/AsyncStorageManager';
 import {login} from '../../services/AuthService';
 import {Formik} from 'formik';
-import * as yup from 'yup';
 import {useIsFocused} from '@react-navigation/native';
-import SocketIOClient from 'socket.io-client/dist/socket.io.js';
-const ValidationSchema = yup.object().shape({
-  email: yup
-    .string()
-    .required('text is required')
-    .max(50, 'text is too long')
-    .min(3, 'text is too short'),
-  password: yup
-    .string()
-    .min(4, ({min}) => `Password must be at least ${min} characters`)
-    .required('Password is required'),
-});
+import {ValidationSchema} from '../../utils/validationSchemaOfYup';
 const LoginScreen = () => {
   const isFocused = useIsFocused();
   const navigation = useNavigation();
@@ -45,16 +33,6 @@ const LoginScreen = () => {
           console.log('response', response?.data.newUser);
           AsyncStorageManager.storeDataObject('user', response?.data.newUser);
           AsyncStorageManager.storeDataObject('token', response?.data.token);
-          const socket = SocketIOClient(`http://192.168.18.25:3000?token=${response?.data.newUser._id}`, {
-            jsonp: false,
-            transports: ['websocket'],
-          });
-          socket.on('connect', () => {
-            console.log('socket connection established');
-          });
-          socket.on('connect_error', err => {
-            console.log('err', err.message);
-          });
           ToastAndroid.showWithGravity(
             JSON.stringify('Login Successfully'),
             ToastAndroid.SHORT,
