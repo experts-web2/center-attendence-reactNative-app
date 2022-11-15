@@ -17,7 +17,7 @@ import Filteration from '../attendance/Filteration';
 import {Dimensions} from 'react-native';
 import AsyncStorageManager from '../../Managers/AsyncStorageManager';
 import {deviceTokenAndAuthorization} from '../../utils/notificatios';
-import { updateUserInfo } from '../../services/AuthService';
+import {updateUserInfo} from '../../services/AuthService';
 import {useIsFocused} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
 import Animated, {
@@ -26,6 +26,7 @@ import Animated, {
   useSharedValue,
 } from 'react-native-reanimated';
 import DropDown from 'react-native-paper-dropdown';
+import PushNotification from 'react-native-push-notification';
 
 import {languageList} from './../../constants/applicationStaticData';
 
@@ -44,7 +45,7 @@ const Home = ({navigation}) => {
   const [showFilter, setShowFilter] = useState(false);
   const [userRoleName, setUserRoleName] = useState('');
   const [showDropDown, setShowDropDown] = useState(false);
-  const [userId,setUserId] = useState('');
+  const [userId, setUserId] = useState('');
   const [attendanceFilters, setAttendanceFilters] = useState({
     center: null,
     city: null,
@@ -65,54 +66,43 @@ const Home = ({navigation}) => {
     setoffset(offset + 1);
   };
 
-const setUserToken=async()=>{
-  const userData=await updateUserInfo(userId,await messaging().getToken());
-  console.log("userdata called",userData);
-}
+  const setUserToken = async () => {
+    const userData = await updateUserInfo(userId, await messaging().getToken());
+  };
 
   useEffect(() => {
-    getAttendance({userRole, offset})
+    getAttendance({userRole, offset}).then(response => {
+      setAttendances(response.data);
+    });
+    AsyncStorageManager.getDataObject('user')
       .then(response => {
-        setAttendances(response.data);
-        setUserToken();
+        setUserId(response._id);
       })
-      .catch(err => console.log(err));
+      .then(res => {
+        getAllAttendencesData();
+        setUserToken();
+      });
   }, [offset]);
 
   useEffect(() => {
-   
-    messaging().setBackgroundMessageHandler(async remoteMessage => {
-      console.log('Message handled in the background!', remoteMessage);
-    });
-    messaging()
-      .getInitialNotification()
-      .then(remoteMessage => {
-        console.log(
-          'Notification caused app to open from quit state:',
-          remoteMessage,
-        );
-      });
-
     AsyncStorageManager.getDataObject('user')
       .then(response => {
         setUserRole(response.center[0]);
         setRole(response.role);
-        console.log('userRole', response._id);
         setUserId(response._id);
         getCenterNmae(response.center[0]).then(response => {});
       })
       .then(res => {
         getAllAttendencesData();
         setUserToken();
-        
       });
     if (isFocused) {
       AsyncStorageManager.getDataObject('user')
         .then(response => {
+          console.log('user data object that store in json', response);
           setUserRole(response.center[0]);
           setRole(response.role);
           setUserId(response._id);
-          console.log('userRole', response._id);
           getCenterNmae(response.center[0]).then(response => {
             setUserRoleName(response.data.name);
           });
@@ -122,10 +112,53 @@ const setUserToken=async()=>{
           setUserToken();
         });
     }
+
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      // redirect when notification is clicked
+      PushNotification.createChannel(
+        {
+          channelId: 'channel-id',
+          channelName: 'My channel',
+          channelDescription: 'A channel to categorise your notifications',
+          playSound: true,
+          soundName: 'default',
+          vibrate: true,
+        },
+        created => console.log(`createChannel returned '${created}'`),
+      );
+      PushNotification.localNotification({
+        channelId: 'channel-id',
+        title: remoteMessage.notification.title,
+        message: remoteMessage.notification.body,
+        playSound: true,
+        soundName: 'default',
+        vibrate: true,
+      });
+      navigation.navigate('notification', {item: remoteMessage});
+      console.log('A new FCM message arrived!', JSON.stringify(remoteMessage));
+    });
+    return unsubscribe;
   }, [isFocused, userRole]);
   useEffect(() => {
     i18n.changeLanguage(language);
   }, [language]);
+
+  messaging().setBackgroundMessageHandler(async remoteMessage => {
+    console.log('Message handled in the background!', remoteMessage);
+    navigation.navigate('notification', {item: remoteMessage});
+  });
+
+  messaging()
+    .getInitialNotification()
+    .then(remoteMessage => {
+      if (remoteMessage) {
+        navigation.navigate('notification', {item: remoteMessage});
+        console.log(
+          'Notification caused app to open from quit state:',
+          remoteMessage,
+        );
+      }
+    });
 
   return (
     <View style={styles.homeWrapper}>
@@ -171,6 +204,7 @@ const setUserToken=async()=>{
         <Modal visible={showFilter} transparent={true}>
           <View style={{width: 100, height: 700}}>
             <Filteration
+              userRole={userRole}
               setShowFilter={setShowFilter}
               showFilter={showFilter}
               setAttendances={setAttendances}

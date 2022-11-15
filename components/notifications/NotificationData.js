@@ -13,7 +13,7 @@ import {useNavigation} from '@react-navigation/native';
 
 const NotificationData = props => {
   const [data, setData] = useState(props.route.params.data);
-  console.log('props', props.route.params.data);
+  console.log('props values', props.route.params.notification);
   const navigation = useNavigation();
   const {item} = props.route.params;
   const {t, i18n} = useTranslation();
@@ -29,7 +29,7 @@ const NotificationData = props => {
         </View>
         <Text
           onPress={() => {
-            navigation.navigate('TabBar1');
+            navigation.navigate('TabBar1');5
           }}>
           NotificationData
         </Text>

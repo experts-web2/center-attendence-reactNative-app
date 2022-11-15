@@ -14,18 +14,11 @@ import {
 import {StyleSheet} from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {Dropdown, MultiSelect} from 'react-native-element-dropdown';
-import {
-  getCities,
-  getCentersByCity,
-  mySocket,
-} from '../../services/AuthService';
+import {getCities, getCentersByCity} from '../../services/AuthService';
 import AsyncStorageManager from '../../Managers/AsyncStorageManager';
 import {useIsFocused} from '@react-navigation/native';
-import SocketIOClient from 'socket.io-client/dist/socket.io.js';
 import {useTranslation} from 'react-i18next';
-import i18n from '../../services/i18';
-import {Socket} from 'socket.io-client';
-const initI18n = i18n;
+import { SelectDropdown } from 'react-native-select-dropdown';
 
 const AttendanceTableForm = ({navigation}) => {
   const {t, i18n} = useTranslation();
@@ -42,7 +35,7 @@ const AttendanceTableForm = ({navigation}) => {
   const [cityManagers, setCityManagers] = useState([]);
   const [selectCityManager, setSelectCityManager] = useState([]);
   const [selectCenterManager, setSelectCenterManager] = useState([]);
-  const [userRole, setUserRole] = useState('');
+  const [userRole, setUserRole] = useState();
   const [userId, setUserId] = useState('');
 
   const handleCity = async e => {
@@ -53,7 +46,6 @@ const AttendanceTableForm = ({navigation}) => {
   };
 
   const handleCenterAndCityManagers = async (centerId, cityId) => {
-    console.log('centerId', centerId);
     await getUserRolesByCityCenter(centerId, cityId)
       .then(response => {
         setCityManagers(response.data.cityManagers);
@@ -80,8 +72,8 @@ const AttendanceTableForm = ({navigation}) => {
       newMembers: member,
       employees: employee,
       nonEmployees: nonMember,
-      city: userRole === '630e22da936b4c901f78dc2d' ? city._id : city,
-      center: userRole === '630e22da936b4c901f78dc2d' ? center._id : center,
+      city: userRole == '630e22da936b4c901f78dc2d' ? city._id : city,
+      center: userRole == '630e22da936b4c901f78dc2d' ? center._id : center,
       centerManagers: selectCenterManager,
       cityManagers: selectCityManager,
       user: userId,
@@ -91,37 +83,37 @@ const AttendanceTableForm = ({navigation}) => {
     });
   };
   useEffect(() => {
-    console.log('called');
-    AsyncStorageManager.getDataObject('user').then(
-      response => {
-        setUserRole(response.role);
-        setUserId(response._id);
-        if (userRole !== '630e22da936b4c901f78dc2d') {
-          handleCenterAndCityManagers(response.center[0], response.city[0]);
-          setCenter(response.center[0]);
-          setCity(response.city[0]);
-        }
-        if (isFocused) {
-          AsyncStorageManager.getDataObject('user').then(response => {
-            setUserRole(response.role);
-            setUserId(response._id);
-            if (userRole !== '630e22da936b4c901f78dc2d') {
-              handleCenterAndCityManagers(response.center[0], response.city[0]);
-              setCenter(response.center[0]);
-              setCity(response.city[0]);
-            }
-          });
-        }
-      },
-      [isFocused],
-    );
+    console.log('user   useeffect called');
+    AsyncStorageManager.getDataObject('user').then(response => {
+      console.log('response of attendence', response.role);
+      setUserRole(response.role);
+      setUserId(response._id);
+      if (userRole !== '630e22da936b4c901f78dc2d') {
+        handleCenterAndCityManagers(response.center[0], response.city[0]);
+        setCenter(response.center[0]);
+        setCity(response.city[0]);
+      }
+      if (isFocused) {
+        console.log('user   useeffect called');
+        AsyncStorageManager.getDataObject('user').then(response => {
+          console.log('response of attendence', response.role);
+          setUserRole(response.role);
+          setUserId(response._id);
+          if (userRole !== '630e22da936b4c901f78dc2d') {
+            handleCenterAndCityManagers(response.center[0], response.city[0]);
+            setCenter(response.center[0]);
+            setCity(response.city[0]);
+          }
+        });
+      }
+    });
 
     getCities()
       .then(response => {
         setCities(response.data);
       })
       .catch(err => console.log(err));
-  }, [userRole]);
+  }, [userRole, isFocused]);
 
   return (
     <View style={styles.mainContainer}>
@@ -137,7 +129,7 @@ const AttendanceTableForm = ({navigation}) => {
                 <Dropdown
                   style={[styles.dropdown]}
                   placeholderStyle={styles.placeholderStyle}
-                  selectedTextStyle={styles.selectedTextStyle}
+                  selectedTextStyle={ styles.selectedTextStyle}
                   inputSearchStyle={styles.inputSearchStyle}
                   iconStyle={styles.iconStyle}
                   data={cities}
@@ -149,12 +141,10 @@ const AttendanceTableForm = ({navigation}) => {
                   onFocus={() => setIsFocus(true)}
                   onBlur={() => setIsFocus(false)}
                   onChange={e => handleCity(e)}
-                  // close the dropdown when select an item
                   closeOnSelect={true}
                 />
               </View>
             ) : null}
-
             {userRole && userRole === '630e22da936b4c901f78dc2d' ? (
               <View style={styles.container}>
                 <Text style={styles.textInputLabel}>{t('Choose Center')}:</Text>
@@ -176,11 +166,10 @@ const AttendanceTableForm = ({navigation}) => {
                 />
               </View>
             ) : null}
-
             <View style={styles.container}>
               <Text style={styles.textInputLabel}>{t('City Manager')}:</Text>
               <MultiSelect
-                style={[styles.dropdown]}
+                style={[ styles.dropdown]}
                 placeholderStyle={styles.placeholderStyle}
                 iconStyle={styles.iconStyle}
                 data={cityManagers}
@@ -189,12 +178,31 @@ const AttendanceTableForm = ({navigation}) => {
                 valueField="value"
                 placeholder={!isFocus ? t('Choose City Manager') : '...'}
                 value={selectCityManager}
+                selectedStyle={
+                  {
+                    backgroundColor: '#F2F2F2',
+                    borderColor: '#F2F2F2',
+                    color: '#000',
+
+                  }
+                }
+                selectedTextStyle={{
+                  color: '#000',
+                  
+                }}
                 onFocus={() => setIsFocus(true)}
-                onBlur={() => setIsFocus(false)}
-                onChange={changeCityManager}
+                closeOnSelect={true}
+                alwaysRenderItemSelected={false}
+                onChange={e => {
+                  setSelectCityManager(e);
+                  setIsFocus(false);
+                }}
+                dropdownPosition={0}
+                hideTags
+
+
               />
             </View>
-
             <View style={styles.container}>
               <Text style={styles.textInputLabel}>{t('Center Manager')}:</Text>
               <MultiSelect
@@ -208,20 +216,16 @@ const AttendanceTableForm = ({navigation}) => {
                 labelField="label"
                 valueField="value"
                 placeholder={!isFocus ? t('Choose Center Manager') : '...'}
-                // auto cose dropdown when select an item
                 closeOnSelect={true}
                 value={selectCenterManager}
                 onFocus={() => setIsFocus(true)}
                 onBlur={() => setIsFocus(false)}
                 onChange={item => {
-                  console.log('---------------------------', isFocus);
                   setSelectCenterManager(item);
                   setIsFocus(false);
-                  console.log('---------------------------', isFocus);
                 }}
               />
             </View>
-
             <View style={styles.signInInputWrapper}>
               <Text style={styles.textInputLabel}>{t('New memeber')}:</Text>
               <TouchableOpacity>
@@ -236,7 +240,6 @@ const AttendanceTableForm = ({navigation}) => {
                 />
               </TouchableOpacity>
             </View>
-
             <View style={styles.signInInputWrapper}>
               <Text style={styles.textInputLabel}>{t('Non Employee')}:</Text>
               <TouchableOpacity>
@@ -378,6 +381,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     color: 'black',
   },
+  dropdown1: {
+    height: 50,
+    borderBottomColor: 'black',
+    borderBottomWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    color: 'black',
+  },
   icon: {
     marginRight: 5,
   },
@@ -449,3 +460,4 @@ const styles = StyleSheet.create({
 //     return {...cityManagers, label: item, value: item};
 //   }),
 // );
+

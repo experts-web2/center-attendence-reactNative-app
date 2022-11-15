@@ -1,6 +1,7 @@
 import {StyleSheet, Text, View, Dimensions} from 'react-native';
 import React, {useState, useEffect} from 'react';
 import DateRangePicker from 'react-native-daterange-picker';
+import DateRangePickerComponent from '../../components/DateRangePickerComponent';
 import {
   getUserRolesByCityCenter,
   geAttendenciesRecord,
@@ -26,13 +27,16 @@ const AttendenceChart = () => {
   const isFocused = useIsFocused();
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+  const [date, setDate] = useState({
+    startDate: null,
+    endDate: null,
+    displayedDate: moment(),
+  });
   const [displayedDate, setDisplayedDate] = useState(moment());
-  const [minDate, setMinDate] = useState(new Date(2016, 2, 15));
-  const [maxDate, setMaxDate] = useState(moment().set('date', 30));
+
   const [cityManagers, setCityManagers] = useState([]);
   const [selectCityManager, setSelectCityManager] = useState([]);
-  const [city, setCity] = useState('');
-  const [center, setCenter] = useState('');
+
   const [isFocus, setIsFocus] = useState(false);
   const [chartData, setChartData] = useState();
   const [labels, setLabels] = useState();
@@ -73,11 +77,22 @@ const AttendenceChart = () => {
   const changeCityManager = e => {
     setSelectCityManager(e);
   };
+
+  const setDates = dates => {
+    setStartDate(dates.startDate);
+    setEndDate(dates.endDate);
+  };
+
   return (
     <>
+      {/* <DateRangePickerComponent setStartDate={setStartDate}  setEndDate={setEndDate} startDate={startDate} endDate={endDate} /> */}
       <View style={{backgroundColor: '#F8FAF8', marginTop: 20}}>
         <View style={styles.container}>
-          <Text style={styles.textInputLabel}>{t('City Manager')}:</Text>
+          <Text style={styles.textInputLabel}>
+            {t('City Manager')}
+            {startDate}
+            {endDate}:
+          </Text>
           <MultiSelect
             style={[styles.dropdown]}
             placeholderStyle={styles.placeholderStyle}
@@ -94,41 +109,19 @@ const AttendenceChart = () => {
             onChange={changeCityManager}
           />
         </View>
+
         <View style={{marginTop: 10, zIndex: 100}}>
-          <DateRangePicker
-            onChange={dates => {
-              console.log('dates', dates);
-              setStartDate(dates.startDate);
-              setEndDate(dates.endDate);
-            }}
-            startDate={startDate}
-            endDate={endDate}
-            minDate={minDate}
-            maxDate={maxDate}
-            dateFormat="YYYY-MM-DD"
-            date={{startDate: startDate, endDate: endDate}}
-            range
-            dayHeaderStyle={{color: 'red'}}
-            containerStyle={{
-              backgroundColor: 'white',
-              width: 300,
-            }}
-            selectedStyle={{
-              backgroundColor: '#0f0',
-              color: 'red',
-              fontWeight: 'bold',
-              borderRadius: 10,
-              borderWidth: 1,
-              borderColor: 'red',
-            }}
-            selectedTextStyle={{
-              color: 'red',
-            }}
-            displayedDate={displayedDate}>
-            <Text style={{fontSize: 25, marginLeft: 10}}>
-              {t('Select Range')}
-            </Text>
-          </DateRangePicker>
+          <View style={styles.container}>
+            <DateRangePicker
+              onChange={setDates}
+              endDate={endDate}
+              startDate={startDate}
+        
+              displayedDate={moment({startDate: startDate, endDate: endDate})}
+              range>
+              <Text>Select Date Range</Text>
+            </DateRangePicker>
+          </View>
         </View>
         <View style={styles.chartTitle}>
           <Text
@@ -147,17 +140,20 @@ const AttendenceChart = () => {
           </Text>
           <BarChart
             data={{
-              labels: labels && labels ? labels : ['1', '2'],
+              labels: ['city', 'manager', 'center', 'short'],
               datasets: [
                 {
-                  data: dataset && dataset ? dataset : [1, 2],
+                  data: [11, 4, 16, 20],
                 },
               ],
             }}
+            fromZero={true}
+            showBarTops={true}
+            showValuesOnTopOfBars={true}
             width={350}
             height={220}
             yAxisLabel=""
-            yAxisSuffix="%"
+            yAxisSuffix=""
             yAxisInterval={1}
             chartConfig={{
               backgroundColor: '#e26a00',
@@ -175,7 +171,7 @@ const AttendenceChart = () => {
                 stroke: '#ffa726',
               },
             }}
-            barPercentage={1}
+            barPercentage={3}
             bezier
             style={{
               marginVertical: 8,

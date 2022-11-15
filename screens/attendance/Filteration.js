@@ -11,6 +11,7 @@ import {
   getUserRolesByCityCenter,
   getUserFilterationData,
 } from '../../services/attendaceService';
+import {AsyncStorageManager} from '../../Managers/AsyncStorageManager';
 import {Dropdown, MultiSelect} from 'react-native-element-dropdown';
 import {getCities, getCentersByCity} from '../../services/AuthService';
 import {cross} from '../../assets/images';
@@ -38,16 +39,8 @@ const Filteration = props => {
     setCenter(e);
     getUserRolesByCityCenter(e._id, e.city._id)
       .then(response => {
-        setCenterManagers(
-          response.data.centerManagers.map(item => {
-            return {...centerManagers, label: item, value: item};
-          }),
-        );
-        setCityManagers(
-          response.data.cityManagers.map(item => {
-            return {...cityManagers, label: item, value: item};
-          }),
-        );
+        setCityManagers(response.data.cityManagers);
+        setCenterManagers(response.data.centerManagers);
       })
       .catch(err => console.log(err));
   };
@@ -55,7 +48,10 @@ const Filteration = props => {
     setSelectCityManager(e);
   };
   const filterationFun = async () => {
+    console.log('888888888888888888888888888',center,city)
+  
     await getUserFilterationData(
+   
       city._id,
       center._id,
       cityManager,
@@ -75,6 +71,10 @@ const Filteration = props => {
         setCities(response.data);
       })
       .catch(err => console.log(err));
+    AsyncStorageManager?.getDataObject('user').then(response => {
+      console.log('res of filteration user data', response);
+    });
+    setCenter( props?.userRole)
   }, []);
   return (
     <View style={styles.filterWrapper}>

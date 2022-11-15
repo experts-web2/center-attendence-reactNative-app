@@ -20,6 +20,7 @@ import {ProgressChart} from 'react-native-chart-kit';
 import {useIsFocused} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
 import i18n from '../../services/i18';
+import {userLogOut} from '../../services/AuthService';
 
 const initI18n = i18n;
 
@@ -40,6 +41,7 @@ const chartConfig = {
 import React from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 const Profile = ({navigation}) => {
+  const [userId,serUserId]=useState('')
   const isFocused = useIsFocused();
   const {t, i18n} = useTranslation();
   const [attendances, setAttendances] = useState([]);
@@ -57,11 +59,13 @@ const Profile = ({navigation}) => {
   };
   useEffect(() => {
     AsyncStorageManager.getDataObject('user').then(res => {
-      console.log('res', res);
+      serUserId(res && res._id);
     });
-    getAllAttendencesData();
   }, [isFocused]);
+
   const LogOutUser = async () => {
+    const LogOut= await userLogOut(userId);
+    console.log('userLogOut', JSON.stringify(LogOut));
     await AsyncStorageManager.clearAllAsyncData();
     navigation.navigate('Login');
   };
@@ -315,3 +319,4 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
 });
+

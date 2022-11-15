@@ -31,6 +31,9 @@ const LoginScreen = () => {
       login(values)
         .then(response => {
           console.log('response', response?.data.newUser);
+          if (response?.data.newUser) {
+            navigation.navigate('TabBar1');
+          }
           AsyncStorageManager.storeDataObject('user', response?.data.newUser);
           AsyncStorageManager.storeDataObject('token', response?.data.token);
           ToastAndroid.showWithGravity(
@@ -44,7 +47,7 @@ const LoginScreen = () => {
         })
         .catch(err =>
           ToastAndroid.showWithGravity(
-            JSON.stringify(err),
+            JSON.stringify('something went wrong'),
             ToastAndroid.SHORT,
             ToastAndroid.CENTER,
           ),
@@ -55,9 +58,11 @@ const LoginScreen = () => {
   };
 
   useEffect(() => {
-    if (isFocused) {
-      AsyncStorageManager.clearAllAsyncData();
-    }
+    AsyncStorageManager.getDataObject('user').then(res => {
+      if (res) {
+        navigation.navigate('TabBar1');
+      }
+    });
   }, [isFocused]);
 
   return (

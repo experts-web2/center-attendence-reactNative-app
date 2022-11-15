@@ -46,7 +46,7 @@ const SignUpScreen = () => {
       center: center,
       role: role,
     };
-    console.log('called');
+    console.log('called',data);
     createUser(data)
       .then(res => {
         console.log('res of register',res);

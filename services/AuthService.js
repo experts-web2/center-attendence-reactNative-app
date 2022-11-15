@@ -1,6 +1,7 @@
 import {axiosInstance} from './axios';
 import SocketIOClient from 'socket.io-client/dist/socket.io.js';
-import io from "socket.io-client"
+import io from 'socket.io-client';
+
 const url = '/user/login';
 export const login = data => {
   return new Promise((resolve, reject) => {
@@ -72,19 +73,25 @@ export const mySocket = data => {
   socket.emit('attendance', data);
 };
 
-export const updateUserInfo =(id, deviceToken) => {
-  console.log('called id and fcm token',id);
-  console.log('called id and fcm token',deviceToken);
+export const updateUserInfo = (id, deviceToken) => {
+  console.log('called id and fcm token', id);
+  console.log('called id and fcm token', deviceToken);
+  const deviceTokens = [deviceToken];
   const url = `/user/${id}`;
   return new Promise((resolve, reject) => {
     axiosInstance
-      .put(url, deviceToken)
+      .put(url, deviceTokens)
       .then(response => resolve(response))
       .catch(err => reject(err));
   });
-}
+};
 
-
-
-
-
+export const userLogOut = id => {
+  const url = `/user/logout/${id}`;
+  return new Promise((resolve, reject) => {
+    axiosInstance
+      .put(url)
+      .then(response => resolve(response))
+      .catch(err => reject(err));
+  });
+};
